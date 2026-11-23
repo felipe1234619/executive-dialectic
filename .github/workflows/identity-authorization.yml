@@ -21,26 +21,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout Executive Dialectic
-        uses: actions/checkout@v4
-        with:
-          path: executive-dialectic
-      - name: Checkout pinned JCE constitutional kernel
-        uses: actions/checkout@v4
-        with:
-          repository: felipe1234619/the-executive-institute
-          ref: feature/jce-constitutional-kernel-v01
-          path: jce-kernel
-      - name: Reproduce and verify JCE in disposable PostgreSQL 17
+      - uses: actions/checkout@v4
+      - name: Verify pinned constitutional fixture hashes
         shell: bash
         run: |
           set -euo pipefail
-          docker run -d --name jce-pg17             --env POSTGRES_HOST_AUTH_METHOD=trust             --volume "$GITHUB_WORKSPACE/jce-kernel:/workspace:ro"             postgres:17
+          cd tests/jce-kernel-fixture
+          sha256sum -c SHA256SUMS
+      - name: Reproduce JCE and execute tenant-isolation behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name jce-pg17             --env POSTGRES_HOST_AUTH_METHOD=trust             --volume "$GITHUB_WORKSPACE:/workspace:ro"             postgres:17
           for i in $(seq 1 40); do
             if docker exec -u postgres jce-pg17 pg_isready -q; then break; fi
             sleep 1
           done
-          docker exec -u postgres -w /workspace jce-pg17 bash scripts/jce/reproduce-local.sh
+          docker exec -u postgres jce-pg17 createdb --template=template0 jce_repro_identity
+          docker exec -u postgres -w /workspace jce-pg17             psql -X -v ON_ERROR_STOP=1 -d jce_repro_identity -f tests/jce-kernel-fixture/bootstrap-local.sql
+          for file in schema.sql atomic_append_v02.sql local_executor_security.sql; do
+            docker exec -u postgres -w /workspace jce-pg17               psql -X -v ON_ERROR_STOP=1 -d jce_repro_identity -f "tests/jce-kernel-fixture/$file"
+          done
+          docker exec -u postgres -w /workspace jce-pg17             psql -X -v ON_ERROR_STOP=1 -d jce_repro_identity -f tests/jce-kernel-fixture/verify-behavior.sql
       - name: Remove disposable database
         if: always()
         run: docker rm -f jce-pg17 >/dev/null 2>&1 || true
