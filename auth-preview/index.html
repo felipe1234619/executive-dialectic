@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-founder-preview' https://esm.sh; style-src 'unsafe-inline'; connect-src https://ezwxcvpcrnsqajixwkvq.supabase.co; base-uri 'none'; form-action 'none'">
+  <title>Executive Dialectic™ · Founder identity preview</title>
+  <style>
+    body { margin: 0; background: #faf7f1; color: #242622; font: 18px Georgia, serif; }
+    main { max-width: 38rem; margin: 10vh auto; padding: 2rem; }
+    header { color: #745b31; letter-spacing: .12em; padding-bottom: 1rem; border-bottom: 1px solid #bca779; }
+    h1 { font-weight: 400; }
+    input, button { display: block; box-sizing: border-box; padding: .8rem; margin: .5rem 0 1rem; font: inherit; }
+    input { width: 100%; max-width: 25rem; }
+    button { background: transparent; border: 1px solid #745b31; min-height: 44px; }
+    button:enabled { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>EXECUTIVE DIALECTIC™</header>
+    <h1>Founder identity preview</h1>
+    <form id="sign-in">
+      <label for="email">Founder email</label>
+      <input id="email" type="email" autocomplete="email" required>
+      <button disabled>Send secure sign-in link</button>
+    </form>
+    <p id="status" role="status">Loading sign-in preview…</p>
+  </main>
+  <script type="module" nonce="founder-preview">
+    const form = document.querySelector('#sign-in');
+    const emailInput = document.querySelector('#email');
+    const button = form.querySelector('button');
+    const status = document.querySelector('#status');
+    const callback = new URL(location.pathname, location.origin);
+    const query = new URLSearchParams(location.search);
+    const fragment = new URLSearchParams(location.hash.slice(1));
+    const code = query.get('code');
+    const authError = query.has('error') || fragment.has('error') || fragment.has('access_token');
+    if (location.search || location.hash) history.replaceState(null, '', callback.pathname);
+
+    async function initialize() {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.57.0?bundle');
+      const memory = new Map();
+      const storage = {
+        // Keep only the PKCE verifier across tabs in the same browser profile.
+        getItem: key => key.endsWith('-code-verifier') ? localStorage.getItem(key) : memory.get(key) ?? null,
+        setItem: (key, value) => key.endsWith('-code-verifier') ? localStorage.setItem(key, value) : memory.set(key, value),
+        removeItem: key => key.endsWith('-code-verifier') ? localStorage.removeItem(key) : memory.delete(key),
+      };
+      const client = createClient(
+        'https://ezwxcvpcrnsqajixwkvq.supabase.co',
+        'sb_publishable_otIc8zS_Ha4M_FdA9gvPmw_WNfzASt5',
+        { auth: {
+          flowType: 'pkce', storageKey: 'executive-dialectic-preview-v1', storage,
+          persistSession: true, autoRefreshToken: false, detectSessionInUrl: false,
+        } },
+      );
+
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        button.disabled = true;
+        status.textContent = 'Requesting sign-in link…';
+        try {
+          const { error } = await client.auth.signInWithOtp({
+            email: emailInput.value.trim(),
+            options: { emailRedirectTo: callback.href, shouldCreateUser: false },
+          });
+          if (error) throw error;
+          status.textContent = 'Open the latest email link in this same browser profile.';
+        } catch {
+          status.textContent = 'The link could not be requested. Confirm the email and try again.';
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      if (authError) {
+        status.textContent = 'Sign-in was rejected. Request a new link.';
+      } else if (code) {
+        status.textContent = 'Verifying the sign-in with Supabase Auth…';
+        const { error: exchangeError } = await client.auth.exchangeCodeForSession(code);
+        if (exchangeError) {
+          status.textContent = 'The link could not be exchanged. Request a fresh link in this browser.';
+        } else {
+          const { data, error } = await client.auth.getUser();
+          if (!error && data.user?.email_confirmed_at) {
+            form.hidden = true;
+            status.textContent = 'Supabase Auth verified the session and confirmed email. Founder authorization and MFA are pending.';
+            return;
+          }
+          status.textContent = 'Supabase Auth could not verify a confirmed email for this session.';
+        }
+      } else {
+        status.textContent = '';
+      }
+      button.disabled = false;
+    }
+
+    initialize().catch(() => {
+      status.textContent = 'Sign-in preview could not load. Reload this page and try again.';
+    });
+  </script>
+</body>
+</html>
