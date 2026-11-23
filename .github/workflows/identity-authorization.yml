@@ -1,4 +1,4 @@
-name: Identity and authorization unit security gate
+name: Identity, authorization and JCE isolation gate
 on:
   push:
     branches: [feature/identity-authorization-v01]
@@ -15,3 +15,32 @@ jobs:
           node-version: '22'
       - run: node --test tests/identity-authorization.test.mjs tests/auth-callback.test.mjs tests/supabase-auth-verifier.test.mjs
       - run: python3 scripts/verify-static.py
+
+  constitutional-isolation:
+    name: Disposable PostgreSQL 17 JCE tenant isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Executive Dialectic
+        uses: actions/checkout@v4
+        with:
+          path: executive-dialectic
+      - name: Checkout pinned JCE constitutional kernel
+        uses: actions/checkout@v4
+        with:
+          repository: felipe1234619/the-executive-institute
+          ref: feature/jce-constitutional-kernel-v01
+          path: jce-kernel
+      - name: Reproduce and verify JCE in disposable PostgreSQL 17
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name jce-pg17             --env POSTGRES_HOST_AUTH_METHOD=trust             --volume "$GITHUB_WORKSPACE/jce-kernel:/workspace:ro"             postgres:17
+          for i in $(seq 1 40); do
+            if docker exec -u postgres jce-pg17 pg_isready -q; then break; fi
+            sleep 1
+          done
+          docker exec -u postgres -w /workspace jce-pg17 bash scripts/jce/reproduce-local.sh
+      - name: Remove disposable database
+        if: always()
+        run: docker rm -f jce-pg17 >/dev/null 2>&1 || true
