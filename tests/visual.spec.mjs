@@ -15,7 +15,7 @@ for (const c of cases) {
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.getByRole('main')).toHaveCount(1);
     await expect(page.getByRole('link', { name: /Skip to content/i })).toHaveCount(1);
-    await expect(page.getByText('Institutional preview', { exact: false })).toBeVisible();
+    await expect(page.locator('.hero-status')).toBeVisible();
     await page.screenshot({ path: `artifacts/${testInfo.project.name}-${c.name}-home.png`, fullPage: true });
     const metrics = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
