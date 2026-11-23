@@ -27,6 +27,15 @@
       <input id="email" type="email" autocomplete="email" required>
       <button disabled>Send secure sign-in link</button>
     </form>
+    <section id="mfa" hidden>
+      <button id="enroll" type="button">Set up authenticator</button>
+      <form id="verify" hidden>
+        <p id="setup" hidden>Add a time-based account in your authenticator using this setup key. Keep it private. <code id="key"></code></p>
+        <label for="otp">Six-digit authenticator code</label>
+        <input id="otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" required>
+        <button>Verify authenticator</button>
+      </form>
+    </section>
     <p id="status" role="status">Loading sign-in preview…</p>
   </main>
   <script type="module" nonce="founder-preview">
@@ -40,6 +49,66 @@
     const code = query.get('code');
     const authError = query.has('error') || fragment.has('error') || fragment.has('access_token');
     if (location.search || location.hash) history.replaceState(null, '', callback.pathname);
+
+    async function prepareMfa(client) {
+      const section = document.querySelector('#mfa');
+      const enroll = document.querySelector('#enroll');
+      const verify = document.querySelector('#verify');
+      const verifyButton = verify.querySelector('button');
+      const otp = document.querySelector('#otp');
+      const setup = document.querySelector('#setup');
+      const key = document.querySelector('#key');
+      const { data: factors, error } = await client.auth.mfa.listFactors();
+      if (error) throw error;
+      let factorId = factors.totp[0]?.id;
+
+      section.hidden = false;
+      enroll.hidden = Boolean(factorId);
+      verify.hidden = !factorId;
+      status.textContent = 'Founder account confirmed. Verify your authenticator to continue.';
+
+      enroll.addEventListener('click', async () => {
+        enroll.disabled = true;
+        try {
+          const { data, error } = await client.auth.mfa.enroll({
+            factorType: 'totp', issuer: 'Executive Dialectic',
+          });
+          if (error) throw error;
+          factorId = data.id;
+          key.textContent = data.totp.secret;
+          setup.hidden = false;
+          enroll.hidden = true;
+          verify.hidden = false;
+          otp.focus();
+        } catch {
+          status.textContent = 'Authenticator setup could not start. Try again.';
+          enroll.disabled = false;
+        }
+      });
+
+      verify.addEventListener('submit', async event => {
+        event.preventDefault();
+        verifyButton.disabled = true;
+        const code = otp.value;
+        otp.value = '';
+        try {
+          const { error } = await client.auth.mfa.challengeAndVerify({ factorId, code });
+          if (error) throw error;
+          const { data, error: assuranceError } = await client.auth.mfa.getAuthenticatorAssuranceLevel();
+          if (assuranceError || data.currentLevel !== 'aal2') {
+            status.textContent = 'The session could not be confirmed at AAL2. Verify again.';
+            return;
+          }
+          key.textContent = '';
+          section.hidden = true;
+          status.textContent = 'Founder account and authenticator verified. Session level: AAL2.';
+        } catch {
+          status.textContent = 'Authenticator verification failed. Try a fresh code.';
+        } finally {
+          verifyButton.disabled = false;
+        }
+      });
+    }
 
     async function initialize() {
       const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.57.0?bundle');
@@ -86,12 +155,13 @@
           status.textContent = 'The link could not be exchanged. Request a fresh link in this browser.';
         } else {
           const { data, error } = await client.auth.getUser();
-          if (!error && data.user?.email_confirmed_at) {
+          if (!error && data.user?.email_confirmed_at &&
+              data.user.id === '471d6599-16ac-40dd-bca5-06bcd52fec28') {
             form.hidden = true;
-            status.textContent = 'Supabase Auth verified the session and confirmed email. Founder authorization and MFA are pending.';
+            await prepareMfa(client);
             return;
           }
-          status.textContent = 'Supabase Auth could not verify a confirmed email for this session.';
+          status.textContent = 'This session could not be matched to the confirmed founder account.';
         }
       } else {
         status.textContent = '';
