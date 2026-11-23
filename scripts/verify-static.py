@@ -50,6 +50,7 @@ for name in PAGES:
         else:
             path, _, fragment = href.partition("#")
             target = (ROOT / path).resolve()
+            if target.is_dir(): target = target / "index.html"
             if not target.is_relative_to(ROOT) or not target.is_file():
                 errors.append(f"{name}: missing local target {href}")
             elif fragment and target == page and fragment not in p.ids:
