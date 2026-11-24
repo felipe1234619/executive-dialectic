@@ -4,14 +4,13 @@ BEGIN;
 
 CREATE ROLE dialectic_membership_reader NOLOGIN NOINHERIT NOBYPASSRLS;
 GRANT dialectic_membership_reader TO CURRENT_USER WITH SET TRUE, INHERIT FALSE;
-GRANT USAGE ON SCHEMA auth, jce_private TO dialectic_membership_reader;
-GRANT EXECUTE ON FUNCTION auth.uid(), auth.jwt() TO dialectic_membership_reader;
+GRANT USAGE ON SCHEMA jce_private TO dialectic_membership_reader;
 GRANT SELECT (organization_id, user_id, role, active)
   ON jce_private.memberships TO dialectic_membership_reader;
 
 CREATE POLICY dialectic_membership_reader_self ON jce_private.memberships
   FOR SELECT TO dialectic_membership_reader
-  USING (user_id = auth.uid() AND active);
+  USING (user_id::text = (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub') AND active);
 GRANT CREATE ON SCHEMA public TO dialectic_membership_reader;
 
 CREATE FUNCTION public.executive_dialectic_current_membership(p_organization_id uuid)
@@ -24,9 +23,8 @@ AS $membership$
   SELECT membership.role::text
   FROM jce_private.memberships AS membership
   WHERE p_organization_id IS NOT NULL
-    AND auth.jwt() ->> 'aal' = 'aal2'
+    AND nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'aal' = 'aal2'
     AND membership.organization_id = p_organization_id
-    AND membership.user_id = auth.uid()
     AND membership.active;
 $membership$;
 
@@ -40,10 +38,7 @@ GRANT EXECUTE ON FUNCTION public.executive_dialectic_current_membership(uuid)
 
 DO $verify$
 BEGIN
-  IF NOT has_schema_privilege('dialectic_membership_reader', 'auth', 'USAGE')
-    OR NOT has_schema_privilege('dialectic_membership_reader', 'jce_private', 'USAGE')
-    OR NOT has_function_privilege('dialectic_membership_reader', 'auth.uid()', 'EXECUTE')
-    OR NOT has_function_privilege('dialectic_membership_reader', 'auth.jwt()', 'EXECUTE')
+  IF NOT has_schema_privilege('dialectic_membership_reader', 'jce_private', 'USAGE')
     OR NOT has_column_privilege('dialectic_membership_reader', 'jce_private.memberships', 'role', 'SELECT')
     OR has_schema_privilege('dialectic_membership_reader', 'public', 'CREATE')
   THEN
