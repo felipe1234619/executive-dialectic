@@ -19,16 +19,15 @@ SELECT 1 / (NOT has_table_privilege('authenticated','jce_private.memberships','S
 SELECT 1 / (NOT has_schema_privilege('jce_executor','public','CREATE'))::int;
 
 SET LOCAL ROLE authenticated;
-SELECT set_config('request.jwt.claim.sub','a0000000-0000-0000-0000-000000000001',true);
-SELECT set_config('request.jwt.claims','{"aal":"aal2"}',true);
+SELECT set_config('request.jwt.claims','{"aal":"aal2","sub":"a0000000-0000-0000-0000-000000000001"}',true);
 SELECT 1 / (public.executive_dialectic_current_membership('b0000000-0000-0000-0000-000000000001') IS NOT DISTINCT FROM 'ADMIN')::int;
 SELECT 1 / (public.executive_dialectic_current_membership('b0000000-0000-0000-0000-000000000002') IS NULL)::int;
 
-SELECT set_config('request.jwt.claim.sub','a0000000-0000-0000-0000-000000000002',true);
+SELECT set_config('request.jwt.claims','{"aal":"aal2","sub":"a0000000-0000-0000-0000-000000000002"}',true);
 SELECT 1 / (public.executive_dialectic_current_membership('b0000000-0000-0000-0000-000000000001') IS NULL)::int;
 SELECT 1 / (public.executive_dialectic_current_membership('b0000000-0000-0000-0000-000000000002') IS NOT DISTINCT FROM 'READER')::int;
 
-SELECT set_config('request.jwt.claims','{"aal":"aal1"}',true);
+SELECT set_config('request.jwt.claims','{"aal":"aal1","sub":"a0000000-0000-0000-0000-000000000002"}',true);
 SELECT 1 / (public.executive_dialectic_current_membership('b0000000-0000-0000-0000-000000000002') IS NULL)::int;
 SELECT set_config('request.jwt.claims','{}',true);
 SELECT 1 / (public.executive_dialectic_current_membership('b0000000-0000-0000-0000-000000000002') IS NULL)::int;
