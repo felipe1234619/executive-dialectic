@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-founder-preview' https://esm.sh; style-src 'unsafe-inline'; connect-src https://ezwxcvpcrnsqajixwkvq.supabase.co; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-founder-preview' https://esm.sh; style-src 'unsafe-inline'; img-src data: blob:; connect-src https://ezwxcvpcrnsqajixwkvq.supabase.co; base-uri 'none'; form-action 'none'">
   <title>Executive Dialectic™ · Founder identity preview</title>
   <style>
     body { margin: 0; background: #faf7f1; color: #242622; font: 18px Georgia, serif; }
@@ -15,6 +15,8 @@
     input, button { display: block; box-sizing: border-box; padding: .8rem; margin: .5rem 0 1rem; font: inherit; }
     input { width: 100%; max-width: 25rem; }
     button { background: transparent; border: 1px solid #745b31; min-height: 44px; }
+    #setup-qr { display: block; width: min(100%, 260px); height: auto; background: white; padding: 12px; }
+    #setup-qr[hidden] { display: none; }
     button:enabled { cursor: pointer; }
   </style>
 </head>
@@ -30,7 +32,15 @@
     <section id="mfa" hidden>
       <button id="enroll" type="button">Set up authenticator</button>
       <form id="verify" hidden>
-        <p id="setup" hidden>Add a time-based account in your authenticator using this setup key. Keep it private. <code id="key"></code></p>
+        <div id="setup" hidden>
+          <p>Open your authenticator and choose Scan a QR code. Keep this screen private.</p>
+          <img id="setup-qr" width="260" height="260" alt="Authenticator setup QR code">
+          <details>
+            <summary>Enter setup key manually</summary>
+            <p id="key-help"></p>
+            <code id="key"></code>
+          </details>
+        </div>
         <label for="otp">Six-digit authenticator code</label>
         <input id="otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" required>
         <button>Verify authenticator</button>
@@ -58,6 +68,9 @@
       const otp = document.querySelector('#otp');
       const setup = document.querySelector('#setup');
       const key = document.querySelector('#key');
+      const keyHelp = document.querySelector('#key-help');
+      const qr = document.querySelector('#setup-qr');
+      let qrObjectUrl;
       const { data: factors, error } = await client.auth.mfa.listFactors();
       if (error) throw error;
       let factorId = factors.totp[0]?.id;
@@ -75,7 +88,19 @@
           });
           if (error) throw error;
           factorId = data.id;
-          key.textContent = data.totp.secret;
+          const { qr_code: qrCode, secret } = data.totp;
+          if (qrCode.startsWith('data:image/svg+xml')) {
+            qr.src = qrCode;
+          } else {
+            qrObjectUrl = URL.createObjectURL(new Blob([qrCode], { type: 'image/svg+xml' }));
+            qr.src = qrObjectUrl;
+          }
+          const manualKey = secret.trim();
+          const canEnterManually = /^[A-Z2-7]+={0,6}$/.test(manualKey);
+          key.textContent = canEnterManually ? manualKey : '';
+          keyHelp.textContent = canEnterManually
+            ? 'Copy this key directly into your authenticator and select Time based.'
+            : 'Use the QR code to add this account.';
           setup.hidden = false;
           enroll.hidden = true;
           verify.hidden = false;
@@ -100,6 +125,8 @@
             return;
           }
           key.textContent = '';
+          qr.removeAttribute('src');
+          if (qrObjectUrl) URL.revokeObjectURL(qrObjectUrl);
           section.hidden = true;
           status.textContent = 'Founder account and authenticator verified. Session level: AAL2.';
         } catch {
