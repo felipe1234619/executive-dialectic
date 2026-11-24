@@ -139,8 +139,14 @@
           });
           if (error) throw error;
           status.textContent = 'Open the latest email link in this same browser profile.';
-        } catch {
-          status.textContent = 'The link could not be requested. Confirm the email and try again.';
+        } catch (error) {
+          if (error?.code === 'over_email_send_rate_limit') {
+            status.textContent = 'Supabase reached the email sending limit. Wait before requesting another link.';
+          } else if (error?.status === 429) {
+            status.textContent = 'Too many requests. Wait before trying again.';
+          } else {
+            status.textContent = 'The link could not be requested. Check the Auth logs for the cause.';
+          }
         } finally {
           button.disabled = false;
         }
