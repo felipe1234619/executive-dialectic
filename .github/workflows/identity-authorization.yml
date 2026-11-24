@@ -1,7 +1,7 @@
 name: Identity, authorization and JCE isolation gate
 on:
   push:
-    branches: [feature/identity-authorization-v01]
+    branches: [feature/identity-authorization-v01, feature/jce-membership-check]
   pull_request:
 permissions:
   contents: read
@@ -43,6 +43,15 @@ jobs:
             docker exec -u postgres -w /workspace jce-pg17               psql -X -v ON_ERROR_STOP=1 -d jce_repro_identity -f "tests/jce-kernel-fixture/$file"
           done
           docker exec -u postgres -w /workspace jce-pg17             psql -X -v ON_ERROR_STOP=1 -d jce_repro_identity -f tests/jce-kernel-fixture/verify-behavior.sql
+      - name: Audit membership lookup with simulated Auth claims
+        if: ${{ hashFiles('tests/jce-membership-check.sql') != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker exec -u postgres -w /workspace jce-pg17 psql -X -v ON_ERROR_STOP=1 -d jce_repro_identity \
+            -c "CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE AS 'SELECT current_setting(''request.jwt.claims'', true)::jsonb'" \
+            -f supabase/migrations/20261124140000_executive_dialectic_current_membership.sql \
+            -f tests/jce-membership-check.sql
       - name: Remove disposable database
         if: always()
         run: docker rm -f jce-pg17 >/dev/null 2>&1 || true
