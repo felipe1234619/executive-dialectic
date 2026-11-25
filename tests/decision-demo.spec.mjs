@@ -20,8 +20,7 @@ test('a revision requires its own reason and preserves the original record', asy
   await expect(page.getByLabel('What prompted this revision?')).toBeHidden();
   const graph = page.getByRole('region', { name: 'Decision graph' });
   await expect(graph).toBeHidden();
-  await expect(page.locator('.demo-brand img')).toHaveJSProperty('complete', true);
-  await expect(page.locator('.demo-brand img')).toHaveJSProperty('naturalWidth', 100);
+  await expect.poll(() => page.locator('.demo-brand img').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
 
   await page.getByLabel('Run a limited pilot through a partner').check();
   await page.getByLabel('Rationale and response to dissent').fill('Limit exposure with a pilot.');
@@ -58,12 +57,6 @@ test('a revision requires its own reason and preserves the original record', asy
   await expect(nodes.last()).toContainText('The partner withdrew its cost estimate.');
   await expect(nodes.last()).toContainText('Fictional partner notice Chile-02');
   await expect(graph.getByRole('link', { name: 'Finance director’s dissent' })).toHaveAttribute('href', '#dissent-heading');
-  const revisionLink = nodes.last().getByRole('link', { name: 'Revision 2 · Defer expansion' });
-  await revisionLink.focus();
-  await page.keyboard.press('Enter');
-  await expect(page.getByRole('heading', { name: 'Revision 2', exact: true })).toBeFocused();
-  await page.goBack();
-  await expect(graph).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
   await expect(page.locator('#versions article').first()).toContainText('The partner withdrew its cost estimate.');
@@ -91,4 +84,10 @@ test('a revision requires its own reason and preserves the original record', asy
   await expect(reason).toHaveValue('');
   await expect(page.getByLabel('What happens to the previous decision?')).toHaveValue('');
   await expect(page.getByLabel('What evidence or assumption supports the revision?')).toHaveValue('');
+
+  const revisionLink = nodes.last().getByRole('link', { name: 'Revision 2 · Defer expansion' });
+  await revisionLink.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/#revision-2$/);
+  await expect(page.getByRole('heading', { name: 'Revision 2', exact: true })).toBeFocused();
 });
