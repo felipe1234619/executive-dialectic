@@ -66,3 +66,20 @@ test('institutional footer supports keyboard navigation', async ({ page }) => {
   await page.keyboard.press('Tab');
   await expect(library).toBeFocused();
 });
+
+test('homepage product cards lead to the matching parts of the fictional case', async ({ page }) => {
+  const home = 'http://127.0.0.1:8765/index.html';
+  await page.goto(home);
+  await expect(page.getByRole('complementary', { name: 'Should we enter the Chilean market?' })).toContainText('Sample decision record');
+
+  for (const [link, heading] of [
+    ['Inspect the evidence', 'Evidence and limits'],
+    ['Review the changes', 'The decision before and after'],
+    ['Trace the workflow', 'Who acts after the pilot is suspended?'],
+  ]) {
+    await page.getByRole('link', { name: link, exact: true }).click();
+    await expect(page).toHaveURL(/demo\.html#/);
+    await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+    await page.goto(home);
+  }
+});
