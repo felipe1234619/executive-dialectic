@@ -22,7 +22,7 @@
   .demo dd {margin: .2rem 0; white-space: pre-wrap; overflow-wrap: anywhere}
   .demo [hidden] {display: none}
 </style>
-<script defer src="./assets/decision-demo.js?v=2"></script>
+<script defer src="./assets/decision-demo.js?v=3"></script>
 </head>
 <body>
 <a class="skip-link" href="#content">Skip to content</a>
@@ -34,15 +34,15 @@
 <main class="demo" id="content">
   <p class="overline">PUBLIC PILOT · FICTIONAL CASE</p>
   <h1>Should we enter a new market?</h1>
-  <p>Act as the executive committee of a fictional software company considering expansion into Chile. Any record you create stays in this tab for the duration of the demonstration.</p>
+  <p>Act as the executive committee of a fictional software company considering expansion into Chile. The demonstration keeps your decision history in this tab. You can download the record before closing it.</p>
   <h2>Evidence and limits</h2>
-  <ul>
+  <ul id="case-evidence">
     <li>Six of ten interviewed buyers expressed interest. The sample came from one industry association and includes no signed commitments.</li>
     <li>A partner estimates a pilot would cost USD 45,000. The estimate excludes local support and contract review.</li>
     <li>Two customers asked for local invoicing. The team has yet to confirm whether it can meet that requirement.</li>
   </ul>
   <h2>Dissent to preserve</h2>
-  <p><strong>Finance director.</strong> Even a limited pilot could tie up the support team. Require a cost ceiling and signed commitments before expanding.</p>
+  <p id="case-dissent"><strong>Finance director.</strong> Even a limited pilot could tie up the support team. Require a cost ceiling and signed commitments before expanding.</p>
   <h2>Record the committee’s judgment</h2>
   <p id="decision-unavailable">The decision form needs JavaScript to run. Reload this page if the form stays unavailable.</p>
   <form id="decision-form" hidden>
@@ -66,6 +66,7 @@
   <section id="records" aria-labelledby="record-title" hidden>
     <h2 id="record-title" tabindex="-1">Decision history</h2>
     <p id="record-status" role="status"></p>
+    <a class="text-link" id="download-record" download="executive-dialectic-chile-decision.txt">Download decision record</a>
     <div id="versions"></div>
     <button id="revise" type="button">Begin revision</button>
   </section>
