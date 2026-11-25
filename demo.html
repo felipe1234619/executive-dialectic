@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="form-action 'none'">
 <meta name="robots" content="noindex, nofollow">
 <title>Explore a Decision | Executive Dialectic™</title>
 <link rel="stylesheet" href="./assets/styles.css">
@@ -21,7 +22,7 @@
   .demo dd {margin: .2rem 0; white-space: pre-wrap; overflow-wrap: anywhere}
   .demo [hidden] {display: none}
 </style>
-<script defer src="./assets/decision-demo.js"></script>
+<script defer src="./assets/decision-demo.js?v=2"></script>
 </head>
 <body>
 <a class="skip-link" href="#content">Skip to content</a>
@@ -31,7 +32,7 @@
   <nav class="primary-nav" aria-label="Site"><a href="./">Home</a></nav>
 </header>
 <main class="demo" id="content">
-  <p class="overline">INTERACTIVE DEMONSTRATION</p>
+  <p class="overline">PUBLIC PILOT · FICTIONAL CASE</p>
   <h1>Should we enter a new market?</h1>
   <p>Act as the executive committee of a fictional software company considering expansion into Chile. Any record you create stays in this tab for the duration of the demonstration.</p>
   <h2>Evidence and limits</h2>
@@ -43,18 +44,24 @@
   <h2>Dissent to preserve</h2>
   <p><strong>Finance director.</strong> Even a limited pilot could tie up the support team. Require a cost ceiling and signed commitments before expanding.</p>
   <h2>Record the committee’s judgment</h2>
-  <form id="decision-form">
-    <fieldset>
+  <p id="decision-unavailable">The decision form needs JavaScript to run. Reload this page if the form stays unavailable.</p>
+  <form id="decision-form" hidden>
+    <fieldset id="decision-fields" disabled>
       <legend>Choose an alternative</legend>
       <label><input type="radio" value="Launch directly" name="alternative" required> Launch directly with a local team</label>
       <label><input type="radio" value="Run a limited pilot" name="alternative"> Run a limited pilot through a partner</label>
       <label><input type="radio" value="Defer expansion" name="alternative"> Defer expansion pending further evidence</label>
       <label for="rationale">Rationale and response to dissent</label>
       <textarea id="rationale" name="rationale" required maxlength="1500"></textarea>
+      <div id="revision-reason-field" hidden>
+        <label for="revision-reason">What prompted this revision?</label>
+        <textarea id="revision-reason" name="revision-reason" maxlength="1000" disabled aria-describedby="revision-reason-help"></textarea>
+        <p id="revision-reason-help">Describe what changed and which evidence or assumption prompted reconsideration.</p>
+      </div>
       <label for="trigger">When should the committee reconsider?</label>
       <textarea id="trigger" name="trigger" required maxlength="750" placeholder="For example, reconsider after 90 days or if costs exceed the approved ceiling."></textarea>
     </fieldset>
-    <button id="record-button">Record simulated decision</button>
+    <button id="record-button" disabled>Record simulated decision</button>
   </form>
   <section id="records" aria-labelledby="record-title" hidden>
     <h2 id="record-title" tabindex="-1">Decision history</h2>
@@ -62,7 +69,6 @@
     <div id="versions"></div>
     <button id="revise" type="button">Begin revision</button>
   </section>
-  <noscript><p>Enable JavaScript to record a simulated decision.</p></noscript>
 </main>
 </div>
 </body>
