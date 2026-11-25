@@ -122,3 +122,37 @@ test('the guided case compares both records and leaves the free simulation ready
   await expect(page.getByLabel('Rationale and response to dissent')).toHaveValue('');
   await expect(page.locator('#versions article')).toHaveCount(0);
 });
+
+test('the operational workflow gates each role and keeps the pilot suspended', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(demo + '#operational-workflow');
+  const workflow = page.getByRole('region', { name: 'Who acts after the pilot is suspended?' });
+  const procurement = workflow.getByRole('button', { name: 'Record two quotes' });
+  const finance = workflow.getByRole('button', { name: 'Record finance review' });
+  const committee = workflow.getByRole('button', { name: 'Request reconsideration' });
+  const status = workflow.getByRole('status');
+
+  await expect(procurement).toBeEnabled();
+  await expect(finance).toBeDisabled();
+  await expect(committee).toBeDisabled();
+  await procurement.focus();
+  await page.keyboard.press('Enter');
+  await expect(status).toContainText('USD 55,000 and USD 58,000');
+  await expect(finance).toBeFocused();
+  await expect(committee).toBeDisabled();
+  await page.keyboard.press('Enter');
+  await expect(status).toContainText('The pilot remains suspended.');
+  await expect(committee).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(status).toBeFocused();
+  await expect(status).toContainText('The suspension stays in effect');
+  await expect(page.locator('#versions article')).toHaveCount(0);
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  await workflow.getByRole('button', { name: 'Reset workflow' }).click();
+  await expect(procurement).toBeFocused();
+  await expect(finance).toBeDisabled();
+  await expect(committee).toBeDisabled();
+  await expect(status).toContainText('Procurement can collect quotes');
+});
