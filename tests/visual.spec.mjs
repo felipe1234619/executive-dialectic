@@ -46,3 +46,23 @@ test('keyboard skip navigation and internal anchors', async ({ page }) => {
   await page.getByRole('link', { name: 'Method', exact: true }).click();
   await expect(page).toHaveURL(/#method$/);
 });
+
+test('institutional footer supports keyboard navigation', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8765/index.html');
+  const footer = page.getByRole('contentinfo');
+  const method = footer.getByRole('link', { name: 'Decision method' });
+  const demo = footer.getByRole('link', { name: 'Interactive demo' });
+  const library = footer.getByRole('link', { name: 'The Executive Library' });
+
+  await expect(demo).toHaveAttribute('href', './demo.html');
+  await expect(library).toHaveAttribute('href', 'https://theexecutiveinstitute.com/');
+
+  await method.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/#method$/);
+  await method.focus();
+  await page.keyboard.press('Tab');
+  await expect(demo).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(library).toBeFocused();
+});
