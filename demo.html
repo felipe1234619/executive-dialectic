@@ -49,9 +49,58 @@
   @media (max-width: 37rem) {
     .guided-comparison {grid-template-columns: 1fr}
   }
+  .workflow-preview {
+    background: var(--ink);
+    color: var(--ivory);
+    padding: clamp(1rem, 4vw, 2rem);
+    margin-block: 2rem 3rem;
+  }
+  .workflow-preview h2 {font-size: clamp(1.65rem, 4vw, 2.35rem); margin-top: .5rem}
+  .workflow-preview a {text-underline-offset: .2em}
+  .workflow-status {border-left: 2px solid #c3a776; padding-left: .75rem; max-width: 58ch}
+  .demo .workflow-stages {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.15rem;
+    list-style: none;
+    padding: 0;
+    margin-block: 1.5rem;
+  }
+  .workflow-stages > li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem .85rem;
+    border: 1px solid #827b6c;
+  }
+  .workflow-stages > li[aria-current="step"] {border-color: #c3a776; background: #33322a}
+  .workflow-stages > li + li::before {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto -1.2rem;
+    width: 1.15rem;
+    border-top: 1px solid #c3a776;
+  }
+  .workflow-stages h3 {font-size: 1.2rem; margin: 0}
+  .workflow-stage-state {color: #e4cb9e; margin-block: .5rem; font-family: var(--sans)}
+  .workflow-stage-detail {font-size: .95rem}
+  .demo .workflow-preview button {color: var(--ink); background: var(--ivory); border-color: #c3a776}
+  .demo .workflow-stages button {margin-top: auto; text-align: left}
+  .demo .workflow-preview button:disabled {background: transparent; color: #cfcbc2; border-color: #827b6c; cursor: default}
+  .demo .workflow-preview button:focus-visible {outline: 2px solid #e4cb9e; outline-offset: 3px}
+  @media (max-width: 42rem) {
+    .demo .workflow-stages {grid-template-columns: 1fr}
+    .workflow-stages > li + li::before {
+      inset: -1.2rem auto auto 1.5rem;
+      width: 0;
+      height: 1.15rem;
+      border-top: 0;
+      border-left: 1px solid #c3a776;
+    }
+  }
   .demo [hidden] {display: none}
 </style>
-<script defer src="./assets/decision-demo.js?v=5"></script>
+<script defer src="./assets/decision-demo.js?v=6"></script>
 </head>
 <body>
 <a class="skip-link" href="#content">Skip to content</a>
@@ -70,6 +119,7 @@
   <p>A fictional software company is considering expansion into Chile. Follow the committee’s decision through a revision, or act as the committee and record your own judgment.</p>
   <nav class="demo-paths" aria-label="Demonstration options">
     <a href="#guided-case">Start the guided case</a>
+    <a href="#operational-workflow">Trace the workflow</a>
     <a href="#free-simulation">Try the free simulation</a>
   </nav>
 
@@ -112,6 +162,34 @@
       <p><strong>Who reopens the decision?</strong> The procurement lead checks that both quotes meet the review criteria and asks the executive committee to reconvene.</p>
       <a class="text-link" href="#free-simulation">Make your own decision</a>
     </div>
+  </section>
+
+  <section class="workflow-preview" aria-labelledby="operational-workflow">
+    <h2 id="operational-workflow" tabindex="-1">Who acts after the pilot is suspended?</h2>
+    <p>Simulate the handoff from Procurement to Finance to the executive committee after the <a href="#guided-revised">revised decision</a>.</p>
+    <p class="workflow-status" id="workflow-status" role="status" tabindex="-1">Pilot suspended. Procurement can collect quotes. Implementation and new commitments remain paused.</p>
+    <ol class="workflow-stages" id="workflow-stages" role="list">
+      <li aria-labelledby="workflow-procurement" aria-current="step">
+        <h3 id="workflow-procurement">Procurement</h3>
+        <p class="workflow-stage-state">Awaiting evidence</p>
+        <p class="workflow-stage-detail">Gather two comparable quotes covering local support, contract review and invoicing.</p>
+        <button type="button" disabled>Record two quotes</button>
+      </li>
+      <li aria-labelledby="workflow-finance">
+        <h3 id="workflow-finance">Finance</h3>
+        <p class="workflow-stage-state">Waiting for quotes</p>
+        <p class="workflow-stage-detail">Check the scope and compare each quote with the USD 60,000 ceiling. Signed commitments are still required before expansion.</p>
+        <button type="button" disabled>Record finance review</button>
+      </li>
+      <li aria-labelledby="workflow-committee">
+        <h3 id="workflow-committee">Executive committee</h3>
+        <p class="workflow-stage-state">Waiting for review</p>
+        <p class="workflow-stage-detail">Receive the reviewed evidence and decide whether to reopen the decision. The committee retains authority to authorize any change.</p>
+        <button type="button" disabled>Request reconsideration</button>
+      </li>
+    </ol>
+    <noscript><p>The workflow is shown above. Enable JavaScript to simulate the handoff.</p></noscript>
+    <button id="workflow-reset" type="button" hidden>Reset workflow</button>
   </section>
 
   <h2 id="free-simulation" tabindex="-1">Free simulation</h2>
