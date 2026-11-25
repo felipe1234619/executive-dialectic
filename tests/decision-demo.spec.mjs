@@ -105,14 +105,16 @@ test('the guided case compares both records and leaves the free simulation ready
   const revised = comparison.getByRole('article', { name: 'Revised decision' });
   await expect(original).toContainText('Approve a limited pilot');
   await expect(revised).toContainText('Suspend the pilot and defer expansion');
-  const desktopOriginal = await original.boundingBox();
-  const desktopRevised = await revised.boundingBox();
-  expect(desktopRevised.x).toBeGreaterThan(desktopOriginal.x);
+  const getCardLayout = () => comparison.evaluate(container => {
+    const [initial, revision] = [...container.children].map(card => card.getBoundingClientRect());
+    return { firstLeft: initial.left, firstBottom: initial.bottom, secondLeft: revision.left, secondTop: revision.top };
+  });
+  const desktop = await getCardLayout();
+  expect(desktop.secondLeft).toBeGreaterThan(desktop.firstLeft);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const mobileOriginal = await original.boundingBox();
-  const mobileRevised = await revised.boundingBox();
-  expect(mobileRevised.y).toBeGreaterThan(mobileOriginal.y + mobileOriginal.height);
+  const mobile = await getCardLayout();
+  expect(mobile.secondTop).toBeGreaterThan(mobile.firstBottom);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
   await expect(page.getByRole('region', { name: 'A pilot in Chile' })).toContainText('The procurement lead checks');
