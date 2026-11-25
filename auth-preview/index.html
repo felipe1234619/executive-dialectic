@@ -183,6 +183,7 @@
 
       form.addEventListener('submit', async event => {
         event.preventDefault();
+        if (button.disabled) return;
         button.disabled = true;
         status.textContent = 'Requesting sign-in link…';
         try {
@@ -191,7 +192,8 @@
             options: { emailRedirectTo: callback.href, shouldCreateUser: false },
           });
           if (error) throw error;
-          status.textContent = 'Open the latest email link in this same browser profile.';
+          form.hidden = true;
+          status.textContent = 'Sign-in email requested. In this Safari profile, open the newest email titled Magic Link and click Log In once. Keep this tab open.';
         } catch (error) {
           if (error?.code === 'over_email_send_rate_limit') {
             status.textContent = 'Supabase reached the email sending limit. Wait before requesting another link.';
@@ -199,14 +201,15 @@
             status.textContent = 'Too many requests. Wait before trying again.';
           } else {
             status.textContent = 'The link could not be requested. Check the Auth logs for the cause.';
+            button.disabled = false;
           }
-        } finally {
-          button.disabled = false;
         }
       });
 
       if (authError) {
-        status.textContent = 'Sign-in was rejected. Request a new link.';
+        status.textContent = (query.get('error_code') ?? fragment.get('error_code')) === 'otp_expired'
+          ? 'This sign-in link is invalid, expired, or already used.'
+          : 'Sign-in was rejected. Check the Auth logs for the cause.';
       } else if (code) {
         status.textContent = 'Verifying the sign-in with Supabase Auth…';
         const { error: exchangeError } = await client.auth.exchangeCodeForSession(code);
