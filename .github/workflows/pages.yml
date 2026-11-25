@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir -p _site/assets
           cp index.html demo.html .nojekyll _site/
-          cp assets/styles.css assets/decision-demo.js _site/assets/
+          cp assets/styles.css assets/decision-demo.js assets/ed-monogram.svg _site/assets/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
