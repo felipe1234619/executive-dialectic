@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
 const demo = 'http://127.0.0.1:8765/demo.html';
@@ -41,6 +42,18 @@ test('a revision requires its own reason and preserves the original record', asy
   await expect(page.locator('#versions article').first()).toContainText('The partner withdrew its cost estimate.');
   await expect(page.locator('#versions article').last()).toContainText('Limit exposure with a pilot.');
   await expect(page.locator('#versions article').last()).not.toContainText('Reason for revision');
+  await expect(page.locator('#versions article').first()).toContainText('Judgment changed from Run a limited pilot to Defer expansion.');
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'Download decision record' }).click();
+  const download = await downloadEvent;
+  expect(download.suggestedFilename()).toBe('executive-dialectic-chile-decision.txt');
+  const report = await readFile(await download.path(), 'utf8');
+  expect(report).toContain('Executive committee (fictional)');
+  expect(report).toContain('Six of ten interviewed buyers');
+  expect(report).toContain('Finance director.');
+  expect(report).toContain('Limit exposure with a pilot.');
+  expect(report).toContain('The partner withdrew its cost estimate.');
+  expect(report.indexOf('Revision 1')).toBeLessThan(report.indexOf('Revision 2'));
   await expect(page).toHaveURL(demo);
   await page.getByRole('button', { name: 'Begin revision' }).click();
   await expect(reason).toHaveValue('');
