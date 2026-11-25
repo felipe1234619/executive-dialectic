@@ -7,7 +7,7 @@ test('the form stays unavailable if the script fails to load', async ({ page }) 
   await page.goto(demo);
   await expect(page.locator('#decision-unavailable')).toBeVisible();
   await expect(page.locator('#decision-form')).toBeHidden();
-  await expect(page.locator('#decision-fields')).toBeDisabled();
+  await expect(page.locator('#rationale')).toBeDisabled();
   await expect(page.locator('#record-button')).toBeDisabled();
   await expect(page).toHaveURL(demo);
 });
