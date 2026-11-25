@@ -5,6 +5,7 @@ const revise = document.querySelector('#revise');
 const recordButton = document.querySelector('#record-button');
 const revisionReasonField = document.querySelector('#revision-reason-field');
 const revisionReasonInput = document.querySelector('#revision-reason');
+const revisionHandoff = document.querySelector('#revision-handoff');
 const download = document.querySelector('#download-record');
 const evidence = [...document.querySelectorAll('#case-evidence li')].map(item => item.textContent.trim());
 const dissent = document.querySelector('#case-dissent').textContent.trim();
@@ -40,9 +41,14 @@ form.addEventListener('submit', event => {
   const rationale = values.get('rationale').trim();
   const trigger = values.get('trigger').trim();
 
-  const requiredText = [['rationale', rationale], ['trigger', trigger]];
+  const reviewOwner = values.get('review-owner').trim();
   const revisionReason = values.get('revision-reason')?.trim();
-  if (history.length > 0) requiredText.push(['revision-reason', revisionReason]);
+  const previousEffect = values.get('previous-effect')?.trim();
+  const evidenceReference = values.get('evidence-reference')?.trim();
+  const requiredText = [['rationale', rationale], ['trigger', trigger], ['review-owner', reviewOwner]];
+  if (history.length > 0) {
+    requiredText.push(['revision-reason', revisionReason], ['previous-effect', previousEffect], ['evidence-reference', evidenceReference]);
+  }
 
   for (const [name, value] of requiredText) {
     if (value) continue;
@@ -60,6 +66,7 @@ form.addEventListener('submit', event => {
     if (decision !== previous.decision) changes.push('Judgment changed from ' + previous.decision + ' to ' + decision + '.');
     if (rationale !== previous.rationale) changes.push('Rationale updated.');
     if (trigger !== previous.trigger) changes.push('Reconsideration conditions updated.');
+    if (reviewOwner !== previous.reviewOwner) changes.push('Reconsideration owner updated.');
   }
   const details = [
     ['Recorded at (UTC)', new Date().toISOString()],
@@ -67,11 +74,14 @@ form.addEventListener('submit', event => {
     ['Rationale', rationale],
     ...(revisionReason ? [
       ['Reason for revision', revisionReason],
-      ['Changes from revision ' + previous.number, changes.join(' ') || 'Judgment, rationale and conditions reaffirmed.'],
+      ['Effect on previous decision', previousEffect],
+      ['Evidence or assumption reference', evidenceReference],
+      ['Changes from revision ' + previous.number, changes.join(' ') || 'Judgment, rationale and reconsideration plan reaffirmed.'],
     ] : []),
-    ['Reconsideration', trigger],
+    ['Reconsideration criteria', trigger],
+    ['Reconsideration owner', reviewOwner],
   ];
-  history.push({ number, decision, rationale, trigger, details });
+  history.push({ number, decision, rationale, trigger, reviewOwner, details });
   updateDownload();
 
   const article = document.createElement('article');
@@ -105,6 +115,10 @@ revise.addEventListener('click', () => {
   revisionReasonInput.disabled = false;
   revisionReasonInput.required = true;
   revisionReasonInput.value = '';
+  revisionHandoff.hidden = false;
+  revisionHandoff.disabled = false;
+  form.elements['previous-effect'].value = '';
+  form.elements['evidence-reference'].value = '';
   revisionReasonInput.focus();
 });
 

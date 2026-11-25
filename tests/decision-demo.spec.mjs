@@ -22,6 +22,7 @@ test('a revision requires its own reason and preserves the original record', asy
   await page.getByLabel('Run a limited pilot through a partner').check();
   await page.getByLabel('Rationale and response to dissent').fill('Limit exposure with a pilot.');
   await page.getByLabel('When should the committee reconsider?').fill('Review after 90 days.');
+  await page.getByLabel('Who is responsible for reopening the decision?').fill('Committee secretary schedules the review.');
   await page.getByRole('button', { name: 'Record simulated decision' }).click();
   await expect(page.locator('#versions article')).toHaveCount(1);
 
@@ -36,6 +37,12 @@ test('a revision requires its own reason and preserves the original record', asy
   await page.getByRole('button', { name: 'Record simulated revision' }).click();
   await expect(page.locator('#versions article')).toHaveCount(1);
   await reason.fill('The partner withdrew its cost estimate.');
+  await page.getByRole('button', { name: 'Record simulated revision' }).click();
+  await expect(page.locator('#versions article')).toHaveCount(1);
+  await page.getByLabel('What happens to the previous decision?').fill('Suspend the pilot. Keep the cost ceiling and require signed commitments before expansion.');
+  await page.getByLabel('What evidence or assumption supports the revision?').fill('Fictional partner notice Chile-02, dated 25 November.');
+  await page.getByLabel('When should the committee reconsider?').fill('Reopen after two quotes include local invoicing, support and contract review.');
+  await page.getByLabel('Who is responsible for reopening the decision?').fill('Procurement lead checks the quotes and asks the committee to reconvene.');
   await page.getByRole('button', { name: 'Record simulated revision' }).click();
 
   await expect(page.locator('#versions article')).toHaveCount(2);
@@ -53,8 +60,15 @@ test('a revision requires its own reason and preserves the original record', asy
   expect(report).toContain('Finance director.');
   expect(report).toContain('Limit exposure with a pilot.');
   expect(report).toContain('The partner withdrew its cost estimate.');
+  expect(report).toContain('Effect on previous decision: Suspend the pilot.');
+  expect(report).toContain('Evidence or assumption reference: Fictional partner notice Chile-02');
+  expect(report).toContain('Reconsideration criteria: Reopen after two quotes');
+  expect(report).toContain('Reconsideration owner: Procurement lead');
+  expect(report).toContain('Reconsideration owner: Committee secretary');
   expect(report.indexOf('Revision 1')).toBeLessThan(report.indexOf('Revision 2'));
   await expect(page).toHaveURL(demo);
   await page.getByRole('button', { name: 'Begin revision' }).click();
   await expect(reason).toHaveValue('');
+  await expect(page.getByLabel('What happens to the previous decision?')).toHaveValue('');
+  await expect(page.getByLabel('What evidence or assumption supports the revision?')).toHaveValue('');
 });

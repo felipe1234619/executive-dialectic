@@ -22,7 +22,7 @@
   .demo dd {margin: .2rem 0; white-space: pre-wrap; overflow-wrap: anywhere}
   .demo [hidden] {display: none}
 </style>
-<script defer src="./assets/decision-demo.js?v=3"></script>
+<script defer src="./assets/decision-demo.js?v=4"></script>
 </head>
 <body>
 <a class="skip-link" href="#content">Skip to content</a>
@@ -56,10 +56,19 @@
       <div id="revision-reason-field" hidden>
         <label for="revision-reason">What prompted this revision?</label>
         <textarea id="revision-reason" name="revision-reason" maxlength="1000" disabled aria-describedby="revision-reason-help"></textarea>
-        <p id="revision-reason-help">Describe what changed and which evidence or assumption prompted reconsideration.</p>
+        <p id="revision-reason-help">Describe what changed and why it matters.</p>
       </div>
+      <fieldset id="revision-handoff" hidden disabled>
+        <legend>Impact and basis of the revision</legend>
+        <label for="previous-effect">What happens to the previous decision?</label>
+        <textarea id="previous-effect" name="previous-effect" required maxlength="1000" placeholder="State what stops, what can continue and which prior conditions still apply."></textarea>
+        <label for="evidence-reference">What evidence or assumption supports the revision?</label>
+        <textarea id="evidence-reference" name="evidence-reference" required maxlength="1000" placeholder="Identify the source and date, or state what still needs verification."></textarea>
+      </fieldset>
       <label for="trigger">When should the committee reconsider?</label>
       <textarea id="trigger" name="trigger" required maxlength="750" placeholder="For example, reconsider after 90 days or if costs exceed the approved ceiling."></textarea>
+      <label for="review-owner">Who is responsible for reopening the decision?</label>
+      <textarea id="review-owner" name="review-owner" required maxlength="250" placeholder="For example, the procurement lead collects the proposals and asks the committee to reconvene."></textarea>
     </fieldset>
     <button id="record-button" disabled>Record simulated decision</button>
   </form>
