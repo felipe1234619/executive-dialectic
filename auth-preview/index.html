@@ -46,6 +46,7 @@
         <button>Verify authenticator</button>
       </form>
     </section>
+    <button id="retry-membership" type="button" hidden>Retry JCE check</button>
     <p id="status" role="status">Loading sign-in preview…</p>
   </main>
   <script type="module" nonce="founder-preview">
@@ -71,6 +72,31 @@
       const keyHelp = document.querySelector('#key-help');
       const qr = document.querySelector('#setup-qr');
       let qrObjectUrl;
+      const retryMembership = document.querySelector('#retry-membership');
+
+      async function checkMembership() {
+        retryMembership.hidden = true;
+        status.textContent = 'MFA verified (AAL2). Checking the JCE membership…';
+        try {
+          const [founder, unrelated] = await Promise.all([
+            client.rpc('executive_dialectic_current_membership', {
+              p_organization_id: '4aa1acf7-482e-4110-a324-cfa1c874ab68',
+            }),
+            client.rpc('executive_dialectic_current_membership', {
+              p_organization_id: '00000000-0000-0000-0000-000000000000',
+            }),
+          ]);
+          if (founder.error || unrelated.error) throw new Error('membership_check_failed');
+          status.textContent = founder.data === 'ADMIN' && unrelated.data === null
+            ? 'AAL2 confirmed. JCE role: ADMIN. Unrelated organization: no membership.'
+            : 'AAL2 confirmed. JCE membership checks did not match the expected result.';
+        } catch {
+          status.textContent = 'AAL2 confirmed. The JCE membership check could not be completed.';
+        }
+        retryMembership.hidden = status.textContent.startsWith('AAL2 confirmed. JCE role: ADMIN.');
+      }
+
+      retryMembership.addEventListener('click', checkMembership);
       const { data: factors, error } = await client.auth.mfa.listFactors();
       if (error) throw error;
       let factorId = factors.totp[0]?.id;
@@ -128,23 +154,7 @@
           qr.removeAttribute('src');
           if (qrObjectUrl) URL.revokeObjectURL(qrObjectUrl);
           section.hidden = true;
-          status.textContent = 'MFA verified (AAL2). Checking the JCE membership…';
-          try {
-            const [founder, unrelated] = await Promise.all([
-              client.rpc('executive_dialectic_current_membership', {
-                p_organization_id: '4aa1acf7-482e-4110-a324-cfa1c874ab68',
-              }),
-              client.rpc('executive_dialectic_current_membership', {
-                p_organization_id: '00000000-0000-0000-0000-000000000000',
-              }),
-            ]);
-            if (founder.error || unrelated.error) throw new Error('membership_check_failed');
-            status.textContent = founder.data === 'ADMIN' && unrelated.data === null
-              ? 'AAL2 confirmed. JCE role: ADMIN. Unrelated organization: no membership.'
-              : 'AAL2 confirmed. JCE membership checks did not match the expected result.';
-          } catch {
-            status.textContent = 'AAL2 confirmed. The JCE membership check could not be completed.';
-          }
+          await checkMembership();
         } catch {
           status.textContent = 'Authenticator verification failed. Try a fresh code.';
         } finally {
