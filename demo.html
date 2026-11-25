@@ -35,6 +35,20 @@
   .graph-versions > li > p {color: var(--muted); margin: .4rem 0}
   .graph-versions > li > a {font-weight: 600}
   .graph-versions dl {margin-bottom: .5rem}
+  .demo-paths {display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.5rem; margin-block: 1.5rem 2.5rem}
+  .demo-paths a {display: inline-block; padding: .65rem .85rem; border: 1px solid var(--gold); text-underline-offset: .2em}
+  .demo-paths a:first-child {background: var(--ink); border-color: var(--ink); color: var(--ivory)}
+  .demo :is(#guided-case, #free-simulation) {scroll-margin-top: 1rem; border-top: 1px solid var(--gold); padding-top: 1rem}
+  .guided-case {margin-block: 2rem 3.25rem}
+  .guided-comparison {display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem}
+  .guided-comparison > article {margin: 0; background: #fffdf8}
+  .guided-comparison > article:last-child {background: var(--light)}
+  .guided-comparison h4 {font-size: 1.25rem; margin-block: 0 .75rem}
+  .guided-comparison dl {margin-block: 0}
+  .guided-next {border-top: 1px solid var(--rule); margin-block-start: 1.5rem; padding-block-start: 1rem}
+  @media (max-width: 37rem) {
+    .guided-comparison {grid-template-columns: 1fr}
+  }
   .demo [hidden] {display: none}
 </style>
 <script defer src="./assets/decision-demo.js?v=5"></script>
@@ -53,16 +67,64 @@
   </div>
   <p class="overline">PUBLIC PILOT · FICTIONAL CASE</p>
   <h1>Should we enter a new market?</h1>
-  <p>Act as the executive committee of a fictional software company considering expansion into Chile. The demonstration keeps your decision history in this tab. You can download the record before closing it.</p>
-  <h2 id="evidence-heading" tabindex="-1">Evidence and limits</h2>
+  <p>A fictional software company is considering expansion into Chile. Follow the committee’s decision through a revision, or act as the committee and record your own judgment.</p>
+  <nav class="demo-paths" aria-label="Demonstration options">
+    <a href="#guided-case">Start the guided case</a>
+    <a href="#free-simulation">Try the free simulation</a>
+  </nav>
+
+  <section class="guided-case" aria-labelledby="guided-case">
+    <h2 id="guided-case" tabindex="-1">A pilot in Chile</h2>
+    <p>Six of ten interviewed buyers expressed interest, but the sample came from a single industry association and yielded no signed commitments. A partner estimated the pilot at USD 45,000, excluding local support and contract review.</p>
+    <p><strong>Finance director’s dissent.</strong> A pilot could strain the support team. The finance director called for a cost ceiling and signed customer commitments before any expansion.</p>
+
+    <h3>What triggered the review?</h3>
+    <p>The partner withdrew its estimate in a written notice. With the original cost basis gone, the committee could no longer assess whether the pilot would fit within its ceiling. The notice did not establish what the pilot would actually cost.</p>
+
+    <h3 id="guided-comparison-title">The decision before and after</h3>
+    <p>The fictional executive committee authorized both versions. The revised record refers back to the original decision and preserves the finance director’s dissent.</p>
+    <div class="guided-comparison" role="group" aria-labelledby="guided-comparison-title">
+      <article aria-labelledby="guided-original">
+        <h4 id="guided-original">Original decision</h4>
+        <dl>
+          <dt>Judgment</dt>
+          <dd>Approve a limited pilot through a local partner, subject to a fully costed plan within the USD 60,000 ceiling.</dd>
+          <dt>Basis</dt>
+          <dd>Initial buyer interest justified testing demand. The partner’s estimate supported further planning, with support and contract costs still to verify.</dd>
+          <dt>Review trigger</dt>
+          <dd>Review after 90 days, or sooner if the cost basis changes.</dd>
+        </dl>
+      </article>
+      <article aria-labelledby="guided-revised">
+        <h4 id="guided-revised">Revised decision</h4>
+        <dl>
+          <dt>Judgment</dt>
+          <dd>Suspend the pilot and defer expansion. Procurement may gather quotes, while implementation and new commitments are paused.</dd>
+          <dt>Basis</dt>
+          <dd>The partner’s written withdrawal removed the cost estimate on which the pilot plan depended.</dd>
+          <dt>Review trigger</dt>
+          <dd>Reopen when two comparable quotes cover local support, contract review and invoicing.</dd>
+        </dl>
+      </article>
+    </div>
+    <div class="guided-next">
+      <p><strong>Conditions that carry forward.</strong> The USD 60,000 ceiling still applies to any pilot. Signed customer commitments are still required before expansion.</p>
+      <p><strong>Who reopens the decision?</strong> The procurement lead checks that both quotes meet the review criteria and asks the executive committee to reconvene.</p>
+      <a class="text-link" href="#free-simulation">Make your own decision</a>
+    </div>
+  </section>
+
+  <h2 id="free-simulation" tabindex="-1">Free simulation</h2>
+  <p>Act as the executive committee. Your decisions stay in this tab, and you can download the record before closing it.</p>
+  <h3 id="evidence-heading" tabindex="-1">Evidence and limits</h3>
   <ul id="case-evidence">
     <li>Six of ten interviewed buyers expressed interest. The sample came from one industry association and includes no signed commitments.</li>
     <li>A partner estimates a pilot would cost USD 45,000. The estimate excludes local support and contract review.</li>
     <li>Two customers asked for local invoicing. The team has yet to confirm whether it can meet that requirement.</li>
   </ul>
-  <h2 id="dissent-heading" tabindex="-1">Dissent to preserve</h2>
+  <h3 id="dissent-heading" tabindex="-1">Dissent to preserve</h3>
   <p id="case-dissent"><strong>Finance director.</strong> Even a limited pilot could tie up the support team. Require a cost ceiling and signed commitments before expanding.</p>
-  <h2>Record the committee’s judgment</h2>
+  <h3>Record the committee’s judgment</h3>
   <p id="decision-unavailable">The decision form needs JavaScript to run. Reload this page if the form stays unavailable.</p>
   <form id="decision-form" hidden>
     <fieldset id="decision-fields" disabled>
