@@ -1,6 +1,8 @@
 const form = document.querySelector('#decision-form');
 const records = document.querySelector('#records');
 const versions = document.querySelector('#versions');
+const graphVersions = document.querySelector('#decision-graph-versions');
+const authority = 'Executive committee (fictional)';
 const revise = document.querySelector('#revise');
 const recordButton = document.querySelector('#record-button');
 const revisionReasonField = document.querySelector('#revision-reason-field');
@@ -16,7 +18,7 @@ function updateDownload() {
   const report = [
     'Executive Dialectic™ | Fictional decision record',
     'Question: Should we enter the Chilean market?',
-    'Authority: Executive committee (fictional)',
+    'Authority: ' + authority,
     '',
     'Evidence and limits',
     ...evidence.map(item => '- ' + item),
@@ -33,6 +35,38 @@ function updateDownload() {
   download.href = nextUrl;
   if (exportUrl) URL.revokeObjectURL(exportUrl);
   exportUrl = nextUrl;
+}
+
+function appendDetails(list, details) {
+  for (const [label, value] of details) {
+    const term = document.createElement('dt');
+    const description = document.createElement('dd');
+    term.textContent = label;
+    description.textContent = value;
+    list.append(term, description);
+  }
+}
+
+function appendGraphVersion({ number, decision, previous, revisionReason, evidenceReference }) {
+  const node = document.createElement('li');
+  const link = document.createElement('a');
+  link.href = '#revision-' + number;
+  link.textContent = 'Revision ' + number + ' · ' + decision;
+
+  const context = document.createElement('p');
+  context.textContent = previous
+    ? 'Revises revision ' + previous.number
+    : 'Initial judgment based on the evidence and dissent above';
+  const details = document.createElement('dl');
+  appendDetails(details, [
+    ['Decision authority', authority],
+    ...(previous ? [
+      ['Reason for revision', revisionReason],
+      ['Evidence or assumption', evidenceReference],
+    ] : []),
+  ]);
+  node.append(link, context, details);
+  graphVersions.append(node);
 }
 
 form.addEventListener('submit', event => {
@@ -86,20 +120,17 @@ form.addEventListener('submit', event => {
 
   const article = document.createElement('article');
   const title = document.createElement('h3');
+  title.id = 'revision-' + number;
+  title.tabIndex = -1;
   title.textContent = 'Revision ' + number;
   article.append(title);
 
   const detailList = document.createElement('dl');
-  for (const [label, value] of details) {
-    const term = document.createElement('dt');
-    const description = document.createElement('dd');
-    term.textContent = label;
-    description.textContent = value;
-    detailList.append(term, description);
-  }
+  appendDetails(detailList, details);
 
   article.append(detailList);
   versions.prepend(article);
+  appendGraphVersion({ number, decision, previous, revisionReason, evidenceReference });
   form.hidden = true;
   records.hidden = false;
   revise.hidden = false;

@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="form-action 'none'">
 <meta name="robots" content="noindex, nofollow">
 <title>Explore a Decision | Executive Dialectic™</title>
+<link rel="icon" type="image/svg+xml" href="./assets/ed-monogram.svg">
 <link rel="stylesheet" href="./assets/styles.css">
 <style>
   .demo {max-width: 48rem; margin: 3rem auto 6rem; padding-inline: 1rem}
@@ -20,9 +21,23 @@
   .demo button {font: inherit; padding: .7rem 1rem; border: 1px solid #242622; background: #242622; color: white; cursor: pointer}
   .demo dt {font-weight: bold; margin-top: .75rem}
   .demo dd {margin: .2rem 0; white-space: pre-wrap; overflow-wrap: anywhere}
+  .demo-brand {display: flex; align-items: center; gap: .9rem; margin-block-end: 2rem}
+  .demo-brand .wordmark {white-space: normal}
+  .demo-brand img {width: 3.5rem; height: 3.5rem}
+  .decision-graph {margin-block: 1.5rem 2rem; border-block: 1px solid var(--rule); padding-block: .25rem 1.25rem}
+  .decision-graph #graph-title {font-size: 1.5rem; margin-block: 1rem .5rem}
+  .graph-sources {display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; border-bottom: 1px solid var(--rule); padding-bottom: .85rem}
+  .decision-graph a {text-decoration-color: var(--gold); text-underline-offset: .2em}
+  .demo .graph-versions {list-style: none; padding-inline: 0; margin-block: 0}
+  .graph-versions > li {position: relative; margin-inline-start: .55rem; padding: 1rem 0 .25rem 1.25rem; border-inline-start: 1px solid var(--gold)}
+  .graph-versions > li::before {content: ""; position: absolute; inset: 1.45rem auto auto -.3rem; width: .55rem; height: .55rem; border: 1px solid var(--gold); border-radius: 50%; background: var(--ivory)}
+  .graph-versions > li:last-child::before {background: var(--gold)}
+  .graph-versions > li > p {color: var(--muted); margin: .4rem 0}
+  .graph-versions > li > a {font-weight: 600}
+  .graph-versions dl {margin-bottom: .5rem}
   .demo [hidden] {display: none}
 </style>
-<script defer src="./assets/decision-demo.js?v=4"></script>
+<script defer src="./assets/decision-demo.js?v=5"></script>
 </head>
 <body>
 <a class="skip-link" href="#content">Skip to content</a>
@@ -32,16 +47,20 @@
   <nav class="primary-nav" aria-label="Site"><a href="./">Home</a></nav>
 </header>
 <main class="demo" id="content">
+  <div class="demo-brand">
+    <img src="./assets/ed-monogram.svg" alt="" width="56" height="56">
+    <span class="wordmark">EXECUTIVE <span>DIALECTIC</span><sup>™</sup></span>
+  </div>
   <p class="overline">PUBLIC PILOT · FICTIONAL CASE</p>
   <h1>Should we enter a new market?</h1>
   <p>Act as the executive committee of a fictional software company considering expansion into Chile. The demonstration keeps your decision history in this tab. You can download the record before closing it.</p>
-  <h2>Evidence and limits</h2>
+  <h2 id="evidence-heading" tabindex="-1">Evidence and limits</h2>
   <ul id="case-evidence">
     <li>Six of ten interviewed buyers expressed interest. The sample came from one industry association and includes no signed commitments.</li>
     <li>A partner estimates a pilot would cost USD 45,000. The estimate excludes local support and contract review.</li>
     <li>Two customers asked for local invoicing. The team has yet to confirm whether it can meet that requirement.</li>
   </ul>
-  <h2>Dissent to preserve</h2>
+  <h2 id="dissent-heading" tabindex="-1">Dissent to preserve</h2>
   <p id="case-dissent"><strong>Finance director.</strong> Even a limited pilot could tie up the support team. Require a cost ceiling and signed commitments before expanding.</p>
   <h2>Record the committee’s judgment</h2>
   <p id="decision-unavailable">The decision form needs JavaScript to run. Reload this page if the form stays unavailable.</p>
@@ -76,6 +95,14 @@
     <h2 id="record-title" tabindex="-1">Decision history</h2>
     <p id="record-status" role="status"></p>
     <a class="text-link" id="download-record" download="executive-dialectic-chile-decision.txt">Download decision record</a>
+    <section class="decision-graph" aria-labelledby="graph-title">
+      <h3 id="graph-title">Decision graph</h3>
+      <div class="graph-sources">
+        <a href="#evidence-heading">Initial evidence and limits</a>
+        <a href="#dissent-heading">Finance director’s dissent</a>
+      </div>
+      <ol class="graph-versions" id="decision-graph-versions" role="list"></ol>
+    </section>
     <div id="versions"></div>
     <button id="revise" type="button">Begin revision</button>
   </section>
