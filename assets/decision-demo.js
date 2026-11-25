@@ -2,6 +2,9 @@ const form = document.querySelector('#decision-form');
 const records = document.querySelector('#records');
 const versions = document.querySelector('#versions');
 const revise = document.querySelector('#revise');
+const recordButton = document.querySelector('#record-button');
+const revisionReasonField = document.querySelector('#revision-reason-field');
+const revisionReasonInput = document.querySelector('#revision-reason');
 let revision = 0;
 
 form.addEventListener('submit', event => {
@@ -10,7 +13,11 @@ form.addEventListener('submit', event => {
   const rationale = values.get('rationale').trim();
   const trigger = values.get('trigger').trim();
 
-  for (const [name, value] of [['rationale', rationale], ['trigger', trigger]]) {
+  const requiredText = [['rationale', rationale], ['trigger', trigger]];
+  const revisionReason = values.get('revision-reason')?.trim();
+  if (revision > 0) requiredText.push(['revision-reason', revisionReason]);
+
+  for (const [name, value] of requiredText) {
     if (value) continue;
     const field = form.elements[name];
     field.value = '';
@@ -30,6 +37,7 @@ form.addEventListener('submit', event => {
     ['Authority', 'Executive committee (fictional)'],
     ['Judgment', values.get('alternative')],
     ['Rationale', rationale],
+    ...(revisionReason ? [['Reason for revision', revisionReason]] : []),
     ['Recorded dissent', 'Finance director requested a cost ceiling and signed commitments before expanding.'],
     ['Reconsideration', trigger],
   ]) {
@@ -52,6 +60,15 @@ form.addEventListener('submit', event => {
 revise.addEventListener('click', () => {
   form.hidden = false;
   revise.hidden = true;
-  document.querySelector('#record-button').textContent = 'Record simulated revision';
-  form.querySelector('input:checked').focus();
+  recordButton.textContent = 'Record simulated revision';
+  revisionReasonField.hidden = false;
+  revisionReasonInput.disabled = false;
+  revisionReasonInput.required = true;
+  revisionReasonInput.value = '';
+  revisionReasonInput.focus();
 });
+
+document.querySelector('#decision-fields').disabled = false;
+recordButton.disabled = false;
+document.querySelector('#decision-unavailable').hidden = true;
+form.hidden = false;
