@@ -157,3 +157,67 @@ document.querySelector('#decision-fields').disabled = false;
 recordButton.disabled = false;
 document.querySelector('#decision-unavailable').hidden = true;
 form.hidden = false;
+
+const workflow = document.querySelector('#workflow-stages');
+const workflowStatus = document.querySelector('#workflow-status');
+const workflowReset = document.querySelector('#workflow-reset');
+const workflowStages = [...workflow.children].map(element => ({
+  element,
+  status: element.querySelector('.workflow-stage-state'),
+  button: element.querySelector('button'),
+}));
+const workflowOutcomes = [
+  {
+    done: 'Quotes recorded',
+    next: 'Ready for review',
+    summary: 'Two fictional quotes received: USD 55,000 and USD 58,000. Finance can now review the scope and ceiling.',
+  },
+  {
+    done: 'Quotes reviewed',
+    next: 'Ready for referral',
+    summary: 'Finance confirmed both fictional quotes cover the required scope and are within the USD 60,000 ceiling. The pilot remains suspended.',
+  },
+  {
+    done: 'Reconsideration requested',
+    summary: 'The committee has received a simulated request to reconsider. The suspension stays in effect until the committee records a new judgment.',
+  },
+];
+
+function updateWorkflow(completed) {
+  const pending = workflowStages[completed];
+  const outcome = workflowOutcomes[completed - 1];
+
+  for (const [index, stage] of workflowStages.entries()) {
+    stage.button.disabled = stage !== pending;
+    if (stage === pending) stage.element.setAttribute('aria-current', 'step');
+    else stage.element.removeAttribute('aria-current');
+
+    if (index < completed) stage.status.textContent = workflowOutcomes[index].done;
+    else if (stage === pending && outcome) stage.status.textContent = outcome.next;
+  }
+
+  if (outcome) workflowStatus.textContent = outcome.summary;
+}
+
+const initialWorkflowStatus = workflowStatus.textContent;
+const initialStageStatuses = workflowStages.map(stage => stage.status.textContent);
+
+for (const [index, stage] of workflowStages.entries()) {
+  stage.button.addEventListener('click', () => {
+    if (stage.button.disabled) return;
+    updateWorkflow(index + 1);
+    (workflowStages[index + 1]?.button ?? workflowStatus).focus();
+  });
+}
+
+workflowReset.addEventListener('click', () => {
+  workflowStages.forEach((stage, index) => {
+    stage.status.textContent = initialStageStatuses[index];
+  });
+  workflowStatus.textContent = initialWorkflowStatus;
+  updateWorkflow(0);
+  workflowStages[0].button.focus();
+});
+
+updateWorkflow(0);
+workflowReset.hidden = false;
