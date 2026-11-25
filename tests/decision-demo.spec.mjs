@@ -91,3 +91,34 @@ test('a revision requires its own reason and preserves the original record', asy
   await expect(page).toHaveURL(/#revision-2$/);
   await expect(page.getByRole('heading', { name: 'Revision 2', exact: true })).toBeFocused();
 });
+
+test('the guided case compares both records and leaves the free simulation ready', async ({ page }) => {
+  await page.setViewportSize({ width: 1120, height: 850 });
+  await page.goto(demo);
+  const start = page.getByRole('link', { name: 'Start the guided case' });
+  await start.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('heading', { name: 'A pilot in Chile' })).toBeFocused();
+
+  const comparison = page.getByRole('group', { name: 'The decision before and after' });
+  const original = comparison.getByRole('article', { name: 'Original decision' });
+  const revised = comparison.getByRole('article', { name: 'Revised decision' });
+  await expect(original).toContainText('Approve a limited pilot');
+  await expect(revised).toContainText('Suspend the pilot and defer expansion');
+  const desktopOriginal = await original.boundingBox();
+  const desktopRevised = await revised.boundingBox();
+  expect(desktopRevised.x).toBeGreaterThan(desktopOriginal.x);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileOriginal = await original.boundingBox();
+  const mobileRevised = await revised.boundingBox();
+  expect(mobileRevised.y).toBeGreaterThan(mobileOriginal.y + mobileOriginal.height);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  await expect(page.getByRole('region', { name: 'A pilot in Chile' })).toContainText('The procurement lead checks');
+
+  await page.getByRole('link', { name: 'Make your own decision' }).click();
+  await expect(page).toHaveURL(/#free-simulation$/);
+  await expect(page.getByLabel('Rationale and response to dissent')).toHaveValue('');
+  await expect(page.locator('#versions article')).toHaveCount(0);
+});
