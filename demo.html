@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Explore a Decision | Executive Dialectic™</title>
+<link rel="stylesheet" href="./assets/styles.css">
+<style>
+  .demo {max-width: 48rem; margin: 3rem auto 6rem; padding-inline: 1rem}
+  .demo :is(h2, h3) {margin-block: 1.3em .5em}
+  .demo h1 {font-size: clamp(2rem, 6vw, 4rem); line-height: 1.05}
+  .demo p, .demo li {line-height: 1.55}
+  .demo ol {padding-inline-start: 1.5rem}
+  .demo fieldset, .demo article {border: 1px solid #b7a27a; padding: 1.25rem; margin-block: 1rem}
+  .demo legend {padding-inline: .4rem; font-weight: bold}
+  .demo label {display: block; margin-block: .75rem}
+  .demo textarea {display: block; width: 100%; min-height: 6rem; padding: .65rem; font: inherit; color: inherit; background: #fffdf8; border: 1px solid #8c7754}
+  .demo button {font: inherit; padding: .7rem 1rem; border: 1px solid #242622; background: #242622; color: white; cursor: pointer}
+  .demo dt {font-weight: bold; margin-top: .75rem}
+  .demo dd {margin: .2rem 0; white-space: pre-wrap; overflow-wrap: anywhere}
+  .demo [hidden] {display: none}
+</style>
+<script defer src="./assets/decision-demo.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="site-shell">
+<header class="masthead">
+  <a class="wordmark" href="./">EXECUTIVE <span>DIALECTIC</span><sup>™</sup></a>
+  <nav class="primary-nav" aria-label="Site"><a href="./">Home</a></nav>
+</header>
+<main class="demo" id="content">
+  <p class="overline">INTERACTIVE DEMONSTRATION</p>
+  <h1>Should we enter a new market?</h1>
+  <p>Act as the executive committee of a fictional software company considering expansion into Chile. Any record you create stays in this tab for the duration of the demonstration.</p>
+  <h2>Evidence and limits</h2>
+  <ul>
+    <li>Six of ten interviewed buyers expressed interest. The sample came from one industry association and includes no signed commitments.</li>
+    <li>A partner estimates a pilot would cost USD 45,000. The estimate excludes local support and contract review.</li>
+    <li>Two customers asked for local invoicing. The team has yet to confirm whether it can meet that requirement.</li>
+  </ul>
+  <h2>Dissent to preserve</h2>
+  <p><strong>Finance director.</strong> Even a limited pilot could tie up the support team. Require a cost ceiling and signed commitments before expanding.</p>
+  <h2>Record the committee’s judgment</h2>
+  <form id="decision-form">
+    <fieldset>
+      <legend>Choose an alternative</legend>
+      <label><input type="radio" value="Launch directly" name="alternative" required> Launch directly with a local team</label>
+      <label><input type="radio" value="Run a limited pilot" name="alternative"> Run a limited pilot through a partner</label>
+      <label><input type="radio" value="Defer expansion" name="alternative"> Defer expansion pending further evidence</label>
+      <label for="rationale">Rationale and response to dissent</label>
+      <textarea id="rationale" name="rationale" required maxlength="1500"></textarea>
+      <label for="trigger">When should the committee reconsider?</label>
+      <textarea id="trigger" name="trigger" required maxlength="750" placeholder="For example, reconsider after 90 days or if costs exceed the approved ceiling."></textarea>
+    </fieldset>
+    <button id="record-button">Record simulated decision</button>
+  </form>
+  <section id="records" aria-labelledby="record-title" hidden>
+    <h2 id="record-title" tabindex="-1">Decision history</h2>
+    <p id="record-status" role="status"></p>
+    <div id="versions"></div>
+    <button id="revise" type="button">Begin revision</button>
+  </section>
+  <noscript><p>Enable JavaScript to record a simulated decision.</p></noscript>
+</main>
+</div>
+</body>
+</html>
