@@ -11,7 +11,28 @@
  const original = {version:"1.0",type:"judgment",authority:"Executive committee (fictional)",judgment:"Conditional pilot approval",evidence:["E-001"],assumption:"A-001",objection:"O-001",conditions:["USD 60,000 ceiling","Finance verifies full cost","Contract review complete"]};
  let history = [original], pending = null, version = 0, evidenceNumber = 1;
  const state = {cost:"unverified",legal:"unverified",costEvidence:null,legalEvidence:null};
- let latestCost=null;
+ let latestCost=null, selectedNode="judgment", selectedRevision=null;
+ function renderIntelligence(j){
+  const evidence=history.filter(x=>x.type==="evidence"), latest=evidence.at(-1);
+  $("metric-evidence").textContent=1+evidence.length;
+  $("metric-versions").textContent=history.filter(x=>x.type==="judgment").length;
+  $("metric-conditions").textContent=[state.cost,state.legal].filter(x=>x==="supported").length+" / 2";
+  $("metric-review").textContent=j.judgment==="Reject pilot"?"Closed":pending?"Reconsideration required":version?"Judgment recorded":"Awaiting evidence";
+  const nodes={
+   evidence:["Latest evidence",latest?latest.id+" · "+latest.description:"E-001 · Partner estimate USD 45,000; incomplete.","Procurement / evidence originator",latest?latest.next:"Obtain full cost and contract review."],
+   cost:["A-001 · Cost condition",state.cost+" · "+(state.costEvidence||"E-001")+" · USD 60,000 ceiling","Finance",state.cost==="supported"?"Maintain verified cost evidence.":"Verify full cost within ceiling."],
+   objection:["O-001 · Finance dissent","Local support may strain the budget. Original objection remains preserved.","Finance","Consider dissent in every revision."],
+   legal:["Contract condition",state.legal+" · "+(state.legalEvidence||"No clearance evidence"),"Legal",state.legal==="supported"?"Maintain clearance evidence.":"Complete contract clearance."],
+   judgment:["Human judgment","v"+j.version+" · "+j.judgment+(pending?" · New evidence requires reconsideration":""),"Executive committee (simulated)",j.judgment==="Reject pilot"?"Proposal closed.":pending?"Record a reasoned human judgment.":j.nextAction||"Verify cost and contract conditions. No execution authorized."]
+  };
+  const n=nodes[selectedNode];["title","detail","owner","next"].forEach((k,i)=>$("inspect-"+k).textContent=n[i]);
+  document.querySelectorAll("[data-node]").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.node===selectedNode));b.dataset.status=b.dataset.node==="cost"?state.cost:b.dataset.node==="legal"?state.legal:b.dataset.node==="judgment"&&pending?"review":"neutral";});
+  const entries=[history[0],...history.slice(1)];
+  $("revision-timeline").replaceChildren(...entries.map((entry,i)=>{const b=document.createElement("button");b.type="button";b.textContent=entry.type==="judgment"?"v"+entry.version+" · "+entry.judgment:entry.id+" · "+entry.description;b.setAttribute("aria-pressed",String(i===(selectedRevision??entries.length-1)));b.onclick=()=>{selectedRevision=i;renderIntelligence(j);};return b;}));
+  const entry=entries[selectedRevision??entries.length-1];
+  $("revision-detail").textContent=entry.type==="judgment"?(entry.authority+" · "+(entry.rationale||"Original conditional judgment")+" · "+(entry.nextAction||"Original conditions retained")+" · Execution not authorized."):(entry.impact+" · "+entry.next);
+ }
+ document.querySelectorAll("[data-node]").forEach(b=>b.addEventListener("click",()=>{selectedNode=b.dataset.node;renderConsole();}));
  function renderConsole(){
   const j=history.filter(x=>x.type==="judgment").slice(-1)[0];
   $("console-judgment").textContent=j.judgment;
@@ -35,10 +56,11 @@
   }
   $("network-review").textContent=pending?"Reconsideration required · judgment unchanged":version?"Human judgment recorded · history preserved":"Awaiting new evidence";
   $("network-review").parentElement.dataset.condition=pending?"alert":"neutral";
+  renderIntelligence(j);
  }
  const choices = {retain:"Retain conditional approval",suspend:"Suspend pilot",reject:"Reject pilot"};
  function append(entry, description) {
-  history.push(entry);
+  history.push(entry); selectedRevision=null;
   const li = document.createElement("li"); li.textContent = description; $("history-list").append(li);
  }
  $("evidence-form").addEventListener("submit", e => {
@@ -67,7 +89,7 @@
   if (!pending || !$("confirm").checked) return;
   const choice=$("choice").value, reason=$("reason").value.trim();
   if (!choices[choice] || !reason) {$("judgment-status").textContent="Provide a judgment and a non-empty rationale.";return;}
-  const entry={type:"judgment",version:"1."+(++version),authority:"Simulated executive committee (visitor)",judgment:choices[choice],rationale:reason,evidence:history.filter(x=>x.type==="evidence").map(x=>x.id),triggerEvidence:pending.id,conditionState:{...state},priorVersion:"1."+(version-1),conditions:[...original.conditions],objection:"O-001",nextAction:choice==="reject"?"Close pilot proposal":(state.cost!=="supported"?"Finance verifies cost within ceiling. ":"")+(state.legal!=="supported"?"Legal completes contract clearance. ":"")+(state.cost==="supported"&&state.legal==="supported"?"Committee considers separate execution authorization.":""),executionAuthorized:false};
+  const entry={type:"judgment",version:"1."+(++version),authority:"Simulated executive committee (visitor)",judgment:choices[choice],rationale:reason,evidence:["E-001",...history.filter(x=>x.type==="evidence").map(x=>x.id)],triggerEvidence:pending.id,conditionState:{...state},priorVersion:"1."+(version-1),conditions:[...original.conditions],objection:"O-001",nextAction:choice==="reject"?"Close pilot proposal":(state.cost!=="supported"?"Finance verifies cost within ceiling. ":"")+(state.legal!=="supported"?"Legal completes contract clearance. ":"")+(state.cost==="supported"&&state.legal==="supported"?"Committee considers separate execution authorization.":""),executionAuthorized:false};
   append(entry,"v"+entry.version+" — "+entry.judgment+" · "+pending.id+" · Rationale: "+reason+" · Next: "+entry.nextAction);
   $("judgment-status").textContent="v"+entry.version+" recorded. No execution authorized; original conditions remain preserved.";
   $("review-status").textContent="Simulated judgment recorded · Historical record retained.";
