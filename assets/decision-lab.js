@@ -23,6 +23,12 @@
   $("console-cost-bar").classList.toggle("over-limit",latestCost!==null&&latestCost>60000);
   $("console-delta").textContent=latestCost===null?"Full cost verification pending.":latestCost>60000?"$12,000 above ceiling · 20% over · quote, not verified full cost.":"$8,000 below ceiling · Finance verified full cost.";
   $("console-legal").textContent="Contract: "+state.legal;
+  for(const [id,value] of [["network-cost",state.cost],["network-legal",state.legal]]){
+   $(id).textContent=value;
+   $(id).parentElement.dataset.condition=value==="supported"?"supported":value==="unverified"?"neutral":"alert";
+  }
+  $("network-review").textContent=pending?"Reconsideration required · judgment unchanged":version?"Human judgment recorded · history preserved":"Awaiting new evidence";
+  $("network-review").parentElement.dataset.condition=pending?"alert":"neutral";
  }
  const choices = {retain:"Retain conditional approval",suspend:"Suspend pilot",reject:"Reject pilot"};
  function append(entry, description) {
@@ -57,10 +63,9 @@
   if (!choices[choice] || !reason) {$("judgment-status").textContent="Provide a judgment and a non-empty rationale.";return;}
   const entry={type:"judgment",version:"1."+(++version),authority:"Simulated executive committee (visitor)",judgment:choices[choice],rationale:reason,evidence:history.filter(x=>x.type==="evidence").map(x=>x.id),triggerEvidence:pending.id,conditionState:{...state},priorVersion:"1."+(version-1),conditions:[...original.conditions],objection:"O-001",nextAction:choice==="reject"?"Close pilot proposal":(state.cost!=="supported"?"Finance verifies cost within ceiling. ":"")+(state.legal!=="supported"?"Legal completes contract clearance. ":"")+(state.cost==="supported"&&state.legal==="supported"?"Committee considers separate execution authorization.":""),executionAuthorized:false};
   append(entry,"v"+entry.version+" — "+entry.judgment+" · "+pending.id+" · Rationale: "+reason+" · Next: "+entry.nextAction);
-  renderConsole();
   $("judgment-status").textContent="v"+entry.version+" recorded. No execution authorized; original conditions remain preserved.";
   $("review-status").textContent="Simulated judgment recorded · Historical record retained.";
-  pending=null; $("judgment-form").reset(); $("judgment-fields").disabled=true;
+  pending=null; renderConsole(); $("judgment-form").reset(); $("judgment-fields").disabled=true;
   $("event").disabled=false; $("event").value=""; $("evidence-form").querySelector("button").disabled=false;
   if(choice==="reject"){ $("event").disabled=true; $("evidence-form").querySelector("button").disabled=true; $("evidence-status").textContent="Proposal closed. Export or reset to begin a new simulation."; }else{$("evidence-status").textContent="You may introduce another evidence event.";}
  });
