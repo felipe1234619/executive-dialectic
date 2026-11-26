@@ -16,6 +16,9 @@
       <a class="wordmark" href="./" aria-label="Executive Dialectic home">EXECUTIVE <span>DIALECTIC</span><sup>™</sup></a>
       <nav class="primary-nav" aria-label="Primary navigation">
         <a href="#product">Product</a>
+        <a href="#workspace">Workspace</a>
+        <a href="./decision-lab.html">Decision Lab</a>
+        <a href="#use-cases">Use cases</a>
         <a href="#method">Method</a>
         <a href="#continuity">Continuity</a>
         <a class="nav-workspace" href="./demo.html">Explore a decision</a>
@@ -84,6 +87,37 @@
           </article>
         </div>
       </section>
+      <section class="product-features" id="workspace" aria-labelledby="workspace-heading">
+        <p class="overline">PRODUCT EXPERIENCE · ILLUSTRATIVE PREVIEW</p>
+        <h2 id="workspace-heading">See what requires executive attention.</h2>
+        <p class="enterprise-intro">Explore a sample portfolio of decisions, unresolved evidence and next actions. Filter the records and select a decision to inspect its continuity. All records are fictional; this is not a live enterprise workspace.</p>
+        <div class="enterprise-workspace">
+          <div class="enterprise-metrics"><div><span>Sample decisions</span><strong>3</strong></div><div><span>Under reconsideration</span><strong>1</strong></div><div><span>Evidence pending</span><strong>1</strong></div></div>
+          <div class="enterprise-controls" hidden id="portfolio-controls"><label for="portfolio-filter">Filter by status</label><select id="portfolio-filter"><option value="all">All decisions</option><option value="Suspended">Suspended</option><option value="Authorized">Authorized</option><option value="Evidence pending">Evidence pending</option></select><p id="portfolio-count" role="status"></p></div><div class="enterprise-table"><table><caption>Illustrative decision portfolio</caption><thead><tr><th scope="col">Decision</th><th scope="col">Status</th><th scope="col">Next responsibility</th></tr></thead><tbody><tr data-decision="chile"><td>Chile market pilot</td><td>Suspended</td><td>Procurement</td></tr><tr data-decision="ai"><td>AI deployment</td><td>Authorized</td><td>Operations</td></tr><tr data-decision="capital"><td>Capital allocation</td><td>Evidence pending</td><td>Finance</td></tr></tbody></table></div>
+          <h3 id="portfolio-detail" tabindex="-1">Decision continuity · Chile pilot</h3><p id="portfolio-summary">The committee retains its USD 60,000 ceiling while procurement obtains comparable quotes.</p>
+          <ol class="enterprise-graph" id="portfolio-graph"><li><strong>Evidence</strong><span>Cost estimate withdrawn</span></li><li><strong>Prior judgment</strong><span>Limited pilot approved</span></li><li><strong>Revised judgment</strong><span>Pilot suspended; ceiling retained</span></li><li><strong>Next action</strong><span>Obtain comparable quotes</span></li></ol>
+          <a class="text-link" href="./demo.html#guided-case">Explore the interactive case</a>
+        </div>
+      </section>
+      <section class="product-features" id="simulation"><p class="overline">INTERACTIVE DECISION LAB · FICTIONAL DATA</p><h2>When the facts change, what happens to your decision?</h2><p class="enterprise-intro">Explore how new evidence affects an existing business judgment, what remains valid, and who retains the authority to decide. The original decision remains visible.</p><a class="product-cta" href="./decision-lab.html">Run the decision simulation</a></section>
+      <section class="product-features" id="use-cases" aria-labelledby="use-cases-heading">
+        <p class="overline">ENTERPRISE APPLICATIONS</p><h2 id="use-cases-heading">Built for consequential business decisions.</h2>
+        <div class="enterprise-grid">
+          <article class="product-card"><h3>Board &amp; executive governance</h3><p>Preserve the rationale, dissent and authority behind strategic approvals.</p></article>
+          <article class="product-card"><h3>Risk &amp; compliance</h3><p>Connect material evidence and objections to accountable decisions and subsequent review.</p></article>
+          <article class="product-card"><h3>Strategic transformation</h3><p>Reconsider investments when the assumptions supporting them change.</p></article>
+          <article class="product-card"><h3>AI governance</h3><p>Distinguish AI-assisted analysis from authorized human judgment.</p></article>
+        </div>
+        <p class="enterprise-note">Intended use cases, not claims of validated enterprise deployments.</p>
+      </section>
+      <section class="product-features" id="trust" aria-labelledby="trust-heading">
+        <p class="overline">SECURITY &amp; TRUST</p><h2 id="trust-heading">Accountability requires boundaries.</h2>
+        <div class="enterprise-grid">
+          <article class="product-card"><h3>Constitutional foundation</h3><p>The private database foundation is installed. The public demonstration uses fictional data.</p></article>
+          <article class="product-card"><h3>Enterprise readiness</h3><p>Authentication, tenant isolation, access permissions and end-to-end authorization require validation before enterprise use.</p></article>
+        </div>
+        <p class="enterprise-note">Do not submit confidential or personal business information to the public demonstration.</p>
+      </section>
       <section class="statement" id="thesis" aria-labelledby="thesis-heading">
         <div class="section-index"><span>01</span><span>THE THESIS</span></div>
         <div class="statement-body"><p class="overline">THE HUMAN CENTER</p><h2 id="thesis-heading">Technology may accelerate analysis.<br><em>Human judgment must remain accountable.</em></h2><p>Artificial intelligence can examine alternatives, challenge assumptions, and surface contrary evidence. It cannot quietly inherit the authority or responsibility of the person who decides.</p></div>
@@ -116,6 +150,9 @@
         <nav aria-label="Footer">
           <p class="institutional-footer-label">The platform</p>
           <ul>
+            <li><a href="#workspace">Workspace preview</a></li>
+            <li><a href="./decision-lab.html">Decision Lab</a></li>
+            <li><a href="#trust">Security &amp; trust</a></li>
             <li><a href="#method">Decision method</a></li>
             <li><a href="./demo.html">Interactive demo</a></li>
           </ul>
@@ -128,5 +165,6 @@
       <p class="institutional-footer-edition">Institutional preview · 2026</p>
     </footer>
   </div>
+  <script src="./assets/portfolio-preview.js" defer></script>
 </body>
 </html>
