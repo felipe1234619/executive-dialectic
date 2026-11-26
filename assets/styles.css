@@ -222,3 +222,10 @@
 .enterprise-graph strong{display:block;margin-bottom:.4rem}
 @media(max-width:1100px){.primary-nav{flex-wrap:wrap;gap:14px;justify-content:flex-end}}
 @media(max-width:720px){.primary-nav{justify-content:flex-start}.enterprise-grid,.enterprise-metrics,.enterprise-graph{grid-template-columns:1fr}.enterprise-graph li:not(:last-child)::after{content:"↓";top:auto;bottom:-1rem;right:50%}}
+
+.enterprise-controls:not([hidden]){display:flex;align-items:center;flex-wrap:wrap;gap:.8rem;margin-top:1.5rem;font:.9rem/1.5 var(--sans)}
+.enterprise-controls select,.portfolio-choice{font:inherit;color:var(--ink);background:var(--ivory);border:1px solid var(--rule);padding:.65rem;min-height:44px}
+.enterprise-controls p{margin:0;color:var(--muted)}
+.portfolio-choice{cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:.2em}
+.portfolio-choice[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
+.portfolio-choice:focus-visible,.enterprise-controls select:focus-visible,#portfolio-detail:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
