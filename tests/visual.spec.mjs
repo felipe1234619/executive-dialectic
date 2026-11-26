@@ -83,3 +83,25 @@ test('homepage product cards lead to the matching parts of the fictional case', 
     await page.goto(home);
   }
 });
+
+test('the Chile walkthrough can be advanced by keyboard on the homepage', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://127.0.0.1:8765/index.html');
+  const story = page.locator('.product-story');
+  const original = story.locator('details').nth(0);
+  const evidence = story.locator('details').nth(1);
+  const revision = story.locator('details').nth(2);
+
+  await expect(original).toHaveJSProperty('open', true);
+  await expect(evidence).toHaveJSProperty('open', false);
+  await evidence.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(original).toHaveJSProperty('open', false);
+  await expect(evidence.getByText(/The partner withdraws/)).toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(revision.locator('summary')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(evidence).toHaveJSProperty('open', false);
+  await revision.getByRole('link', { name: 'Follow the operational handoff' }).click();
+  await expect(page).toHaveURL(/demo\.html#operational-workflow$/);
+});

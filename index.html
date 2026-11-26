@@ -34,11 +34,21 @@
         <aside class="product-record" aria-labelledby="product-record-title">
           <p class="product-record-caption">Sample decision record</p>
           <h2 id="product-record-title">Should we enter the Chilean market?</h2>
-          <dl>
-            <div><dt>Original decision</dt><dd>Authorize a limited pilot within a USD 60,000 ceiling.</dd></div>
-            <div><dt>New evidence</dt><dd>The partner withdrew its cost estimate.</dd></div>
-            <div><dt>Revised decision</dt><dd>Suspend the pilot pending two comparable quotes.</dd></div>
-          </dl>
+          <div class="product-story">
+            <details name="chile-decision" open>
+              <summary>Original decision</summary>
+              <p>The committee approves a limited pilot with a USD 60,000 ceiling. Finance warns that the pilot could strain local support.</p>
+            </details>
+            <details name="chile-decision">
+              <summary>New evidence</summary>
+              <p>The partner withdraws its USD 45,000 estimate. The committee no longer has a cost basis for assessing the pilot against the ceiling.</p>
+            </details>
+            <details name="chile-decision">
+              <summary>Revised decision</summary>
+              <p>The committee suspends the pilot and keeps the ceiling in place. Procurement can collect two comparable quotes for Finance to review.</p>
+              <a href="./demo.html#operational-workflow">Follow the operational handoff</a>
+            </details>
+          </div>
           <a href="./demo.html#guided-comparison-title">Compare both versions</a>
         </aside>
       </section>
