@@ -5,7 +5,8 @@
   withdrawn: ["Partner withdraws USD 45,000 estimate", "A-001 loses its supporting estimate; total cost is unknown.", "Finance must verify replacement cost; procurement obtains comparable quotes.", false],
   overrun: ["Comparable quote: USD 72,000", "Quote exceeds the USD 60,000 ceiling by USD 12,000 (20%).", "No commitment under existing authority; Finance reviews alternatives.", false],
   verified: ["Finance verifies full cost: USD 52,000", "Verified cost is USD 8,000 below the ceiling.", "Cost condition supported; contract review remains required.", true],
-  legal: ["Contract review identifies unresolved liability", "Contract clearance condition is not satisfied.", "Legal must resolve liability before any commitment.", false]
+  legal: ["Contract review identifies unresolved liability", "Contract clearance condition is not satisfied.", "Legal must resolve liability before any commitment.", false],
+  cleared: ["Legal confirms contract clearance", "Contract clearance condition is supported by new evidence.", "Finance condition must independently remain satisfied.", true]
  };
  const original = {version:"1.0",type:"judgment",authority:"Executive committee (fictional)",judgment:"Conditional pilot approval",evidence:["E-001"],assumption:"A-001",objection:"O-001",conditions:["USD 60,000 ceiling","Finance verifies full cost","Contract review complete"]};
  let history = [original], pending = null, version = 0, evidenceNumber = 1;
@@ -23,7 +24,7 @@
   const key = $("event").value, event = events[key];
   if (!event) return;
   pending = {id:"E-"+String(++evidenceNumber).padStart(3,"0"),key,description:event[0],impact:event[1],next:event[2]};
-  if(key==="withdrawn" || key==="overrun" || key==="verified"){state.cost=key==="verified"?"supported":key==="overrun"?"exceeds ceiling":"unverified";state.costEvidence=pending.id;}else if(key==="legal"){state.legal="unresolved liability";state.legalEvidence=pending.id;}
+  if(key==="withdrawn" || key==="overrun" || key==="verified"){state.cost=key==="verified"?"supported":key==="overrun"?"exceeds ceiling":"unverified";state.costEvidence=pending.id;}else if(key==="legal" || key==="cleared"){state.legal=key==="cleared"?"supported":"unresolved liability";state.legalEvidence=pending.id;}
   pending.conditionState={...state};
   append({type:"evidence",...pending}, pending.id+" — "+event[0]);
   $("evidence-status").textContent = pending.id+" introduced. Record a judgment before introducing another event.";
@@ -39,7 +40,7 @@
   if (!pending || !$("confirm").checked) return;
   const choice=$("choice").value, reason=$("reason").value.trim();
   if (!choices[choice] || !reason) {$("judgment-status").textContent="Provide a judgment and a non-empty rationale.";return;}
-  const entry={type:"judgment",version:"1."+(++version),authority:"Simulated executive committee (visitor)",judgment:choices[choice],rationale:reason,evidence:history.filter(x=>x.type==="evidence").map(x=>x.id),triggerEvidence:pending.id,conditionState:{...state},priorVersion:"1."+(version-1),conditions:[...original.conditions],objection:"O-001",nextAction:choice==="reject"?"Close pilot proposal":(state.cost!=="supported"?"Finance verifies cost within ceiling. ":"")+(state.legal!=="supported"?"Legal completes contract clearance. ":""),executionAuthorized:false};
+  const entry={type:"judgment",version:"1."+(++version),authority:"Simulated executive committee (visitor)",judgment:choices[choice],rationale:reason,evidence:history.filter(x=>x.type==="evidence").map(x=>x.id),triggerEvidence:pending.id,conditionState:{...state},priorVersion:"1."+(version-1),conditions:[...original.conditions],objection:"O-001",nextAction:choice==="reject"?"Close pilot proposal":(state.cost!=="supported"?"Finance verifies cost within ceiling. ":"")+(state.legal!=="supported"?"Legal completes contract clearance. ":"")+(state.cost==="supported"&&state.legal==="supported"?"Committee considers separate execution authorization.":""),executionAuthorized:false};
   append(entry,"v"+entry.version+" — "+entry.judgment+" · "+pending.id+" · Rationale: "+reason+" · Next: "+entry.nextAction);
   $("judgment-status").textContent="v"+entry.version+" recorded. No execution authorized; original conditions remain preserved.";
   $("review-status").textContent="Simulated judgment recorded · Historical record retained.";
