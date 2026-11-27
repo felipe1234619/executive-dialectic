@@ -1,0 +1,15 @@
+# JCE Constitutional Audit — Phase I
+Read-only production catalog inspection, 2026-11-26 Brazil time. No database changes.
+## Verified
+Executive Dialectic organization has one active ADMIN membership, confirmed email and one verified MFA factor. FOUNDING_AUTHORITY_ESTABLISHED actor matches active ADMIN. One decision at revision 1 with one audit event; recomputed SHA-256 and predecessor link match. Identity of account holder and current AAL2 session not verified.
+Four enabled BEFORE UPDATE OR DELETE triggers reject mutations on evidence, relations, object_versions and audit_events. Composite foreign keys constrain objects, versions and relation endpoints to organization and decision. Unique idempotency keys and revision primary keys. append_object_version binds actor to auth.uid(), checks active membership, locks decision, checks replay and stale revision, writes version and audit atomically. Scoped human verification requires reviewer role, actor match and nonblank basis. Both internal service roles NOLOGIN, NOBYPASSRLS, NOSUPERUSER. Membership reader has column SELECT grants and self-only RLS; public membership RPC requires aal2 and is callable by authenticated only among ordinary client roles. Executor UPDATE grant restricted to decisions.revision.
+## Findings / release blockers
+A01 HIGH: append_object_version lacks explicit AAL2 check and kind-specific authorization; v_kind is fetched but unused. Generic JSON body cannot enforce formal judgment/execution semantics. Function currently private, not client callable; fix before exposing any adapter.
+A02 HIGH: no implemented authorized read/write lifecycle for evidence, relations, object creation, independent ballots, resolutions, assignments, execution gates. Three private tables have RLS with no policies (default deny for ordinary roles). Do not broadly grant access.
+A03 MEDIUM: scoped verification CHECK can accept NULL basis via SQL three-valued logic; existing function explicitly rejects NULL. Add defense-in-depth constraint after isolated validation.
+A04 MEDIUM: hash concatenation uses colon-delimited variable fields; adopt versioned unambiguous canonical encoding for future events without rewriting genesis; external anchoring and privileged tamper threat model pending.
+A05 MEDIUM: public membership SECURITY DEFINER RPC flagged by advisor; narrow owner and RLS observed, explicit caller identity predicate recommended as defense in depth; test AAL1/AAL2, wrong tenant and revoked membership.
+A06 MEDIUM: leaked password protection disabled per advisor; review plan availability and enable if applicable.
+A07: append_audit_event trusts caller-supplied actor, private postgres-only ACL; never expose directly.
+## Next gate
+Isolated environment, schema and function fixtures, authenticated multi-tenant tests, immutable history and replay/concurrency tests. Define typed commands and role matrix, ballot secrecy and reveal, separate execution authorization, evidence provenance and relation version semantics. No production release or schema mutation until review. Catalog findings are not adversarial runtime tests.
